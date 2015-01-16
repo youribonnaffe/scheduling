@@ -118,9 +118,9 @@ import static org.ow2.proactive.scheduler.common.util.VariablesUtil.filterAndUpd
  * @author The ProActive Team
  * @since ProActive Scheduling 0.9
  */
-public abstract class TaskLauncher implements InitActive {
+public abstract class TaskLauncherBak implements InitActive {
 
-    public static final Logger logger = Logger.getLogger(TaskLauncher.class);
+    public static final Logger logger = Logger.getLogger(TaskLauncherBak.class);
 
     //Scratch dir property : we cannot take the key property from DataSpaceNodeConfigurationAgent class in RM.
     //we should not depend from RM package in this class.
@@ -206,7 +206,7 @@ public abstract class TaskLauncher implements InitActive {
 
     protected ExecutableGuard executableGuard = new ExecutableGuard();
 
-    protected volatile TaskLauncher stubOnThis;
+    protected volatile TaskLauncherBak stubOnThis;
     protected volatile Body taskLauncherBody;
 
     // true if finalizeLoggers has been called
@@ -242,7 +242,7 @@ public abstract class TaskLauncher implements InitActive {
     /**
      * ProActive empty constructor.
      */
-    public TaskLauncher() {
+    public TaskLauncherBak() {
     }
 
     /**
@@ -251,7 +251,7 @@ public abstract class TaskLauncher implements InitActive {
      *
      * @param initializer represents the class that contains information to initialize every task launcher.
      */
-    public TaskLauncher(TaskLauncherInitializer initializer) {
+    public TaskLauncherBak(TaskLauncherInitializer initializer) {
         this.taskId = initializer.getTaskId();
         this.pre = initializer.getPreScript();
         this.post = initializer.getPostScript();
@@ -302,7 +302,7 @@ public abstract class TaskLauncher implements InitActive {
         Node node;
         try {
             node = PAActiveObject.getNode();
-            stubOnThis = (TaskLauncher) PAActiveObject.getStubOnThis();
+            stubOnThis = (TaskLauncherBak) PAActiveObject.getStubOnThis();
             taskLauncherBody = PAActiveObject.getBodyOnThis();
             executableGuard.setNode(node);
         } catch (Exception e) {
@@ -335,7 +335,7 @@ public abstract class TaskLauncher implements InitActive {
      * Generate a couple of key and return the public one
      *
      * @return the generated public key
-     * @throws NoSuchAlgorithmException if RSA is unknown
+     * @throws java.security.NoSuchAlgorithmException if RSA is unknown
      */
     public PublicKey generatePublicKey() throws NoSuchAlgorithmException {
         KeyPairGenerator keyGen;
@@ -375,12 +375,12 @@ public abstract class TaskLauncher implements InitActive {
         MDC.put(Log4JTaskLogs.MDC_HOST, getHostname());
         l.removeAllAppenders();
         // create an async appender for multiplexing (storage plus redirect through socketAppender)
-        String logMaxSizeProp = System.getProperty(TaskLauncher.MAX_LOG_SIZE_PROPERTY);
+        String logMaxSizeProp = System.getProperty(TaskLauncherBak.MAX_LOG_SIZE_PROPERTY);
         if (logMaxSizeProp == null) {
-            logMaxSizeProp = System.getProperty(TaskLauncher.OLD_MAX_LOG_SIZE_PROPERTY);
+            logMaxSizeProp = System.getProperty(TaskLauncherBak.OLD_MAX_LOG_SIZE_PROPERTY);
         }
         if (logMaxSizeProp == null || "".equals(logMaxSizeProp.trim())) {
-            this.logAppender = new AsyncAppenderWithStorage(TaskLauncher.DEFAULT_LOG_MAX_SIZE);
+            this.logAppender = new AsyncAppenderWithStorage(TaskLauncherBak.DEFAULT_LOG_MAX_SIZE);
         } else {
             try {
                 int logMaxSize = Integer.parseInt(logMaxSizeProp);
@@ -389,8 +389,8 @@ public abstract class TaskLauncher implements InitActive {
             } catch (NumberFormatException e) {
                 logger.warn(MAX_LOG_SIZE_PROPERTY +
                     " property is not correctly defined. Logs size is bounded to default value " +
-                    TaskLauncher.DEFAULT_LOG_MAX_SIZE + " for task " + this.taskId, e);
-                this.logAppender = new AsyncAppenderWithStorage(TaskLauncher.DEFAULT_LOG_MAX_SIZE);
+                    TaskLauncherBak.DEFAULT_LOG_MAX_SIZE + " for task " + this.taskId, e);
+                this.logAppender = new AsyncAppenderWithStorage(TaskLauncherBak.DEFAULT_LOG_MAX_SIZE);
             }
         }
         l.addAppender(this.logAppender);
@@ -408,15 +408,15 @@ public abstract class TaskLauncher implements InitActive {
 
     /**
      * Create log file in $LOCALSPACE.
-     * @throws IOException if the file cannot be created.
+     * @throws java.io.IOException if the file cannot be created.
      */
     private void initLocalLogsFile() throws IOException {
-        logFileName = TaskLauncher.LOG_FILE_PREFIX + "-" + this.taskId.getJobId() + "-" +
+        logFileName = TaskLauncherBak.LOG_FILE_PREFIX + "-" + this.taskId.getJobId() + "-" +
             this.taskId.value() + ".log";
         // if IS_FORKED is set, it means that the forker task has already created a log file,
         // and we just append to it
         if (!isForkedTask()) {
-            DataSpacesFileObject outlog = SCRATCH.resolveFile(TaskLauncher.LOG_FILE_PREFIX + "-" +
+            DataSpacesFileObject outlog = SCRATCH.resolveFile(TaskLauncherBak.LOG_FILE_PREFIX + "-" +
                 this.taskId.getJobId() + "-" + this.taskId.value() + ".log");
             String outPath;
             try {
@@ -629,7 +629,7 @@ public abstract class TaskLauncher implements InitActive {
      * If the value returned by user is not in [0:100], the closest bound (0 or 100) is returned.
      *
      * @return the latest progress value set by the launched executable.
-     * @throws IllegalProgressException if the userExecutable.getProgress() method throws an exception
+     * @throws org.ow2.proactive.scheduler.exception.IllegalProgressException if the userExecutable.getProgress() method throws an exception
      */
     @ImmediateService
     public int getProgress() throws ProgressPingerException {
@@ -640,9 +640,9 @@ public abstract class TaskLauncher implements InitActive {
     /**
      * Execute the preScript on the local node.
      *
-     * @throws ActiveObjectCreationException if the script handler cannot be created
-     * @throws NodeException if the script handler cannot be created
-     * @throws UserException if an error occurred during the execution of the script
+     * @throws org.objectweb.proactive.ActiveObjectCreationException if the script handler cannot be created
+     * @throws org.objectweb.proactive.core.node.NodeException if the script handler cannot be created
+     * @throws org.ow2.proactive.scheduler.common.exception.UserException if an error occurred during the execution of the script
      */
     @SuppressWarnings("unchecked")
     protected void executePreScript() throws ActiveObjectCreationException, NodeException, UserException {
@@ -669,9 +669,9 @@ public abstract class TaskLauncher implements InitActive {
      * Execute the postScript on the local node.
      *
      * @param executionSucceed a boolean describing the state of the task execution.(true if execution succeed, false if not)
-     * @throws ActiveObjectCreationException if the script handler cannot be created
-     * @throws NodeException if the script handler cannot be created
-     * @throws UserException if an error occurred during the execution of the script
+     * @throws org.objectweb.proactive.ActiveObjectCreationException if the script handler cannot be created
+     * @throws org.objectweb.proactive.core.node.NodeException if the script handler cannot be created
+     * @throws org.ow2.proactive.scheduler.common.exception.UserException if an error occurred during the execution of the script
      */
     @SuppressWarnings("unchecked")
     protected void executePostScript(boolean executionSucceed) throws ActiveObjectCreationException,
@@ -794,7 +794,7 @@ public abstract class TaskLauncher implements InitActive {
         logger.info("Finalizing task " + taskId);
 
         // clean the task launcher unless it's been done already by the kill mechanism
-        executableGuard.clean(TaskLauncher.CLEAN_TIMEOUT);
+        executableGuard.clean(TaskLauncherBak.CLEAN_TIMEOUT);
 
         /*
          * send back the result (if the task was killed, the core is not accessible, but it is accessible
@@ -851,7 +851,7 @@ public abstract class TaskLauncher implements InitActive {
                 logger.warn("Exception occurred while executing kill on task " + taskId.value(), e);
             }
 
-            executableGuard.clean(TaskLauncher.CLEAN_TIMEOUT);
+            executableGuard.clean(TaskLauncherBak.CLEAN_TIMEOUT);
         }
         try {
             if (taskLauncherBody != null) {
@@ -1372,7 +1372,7 @@ public abstract class TaskLauncher implements InitActive {
         // Log file will be transferred by this task to the user or output space, only if it's not a forked task
         if (!isForkedTask()) {
             OutputSelector logFiles = new OutputSelector(
-                new org.objectweb.proactive.extensions.dataspaces.vfs.selector.FileSelector(TaskLauncher.LOG_FILE_PREFIX + "*"), transferTo);
+                new org.objectweb.proactive.extensions.dataspaces.vfs.selector.FileSelector(TaskLauncherBak.LOG_FILE_PREFIX + "*"), transferTo);
             result.add(logFiles);
         }
         return result;
@@ -1635,7 +1635,7 @@ public abstract class TaskLauncher implements InitActive {
                 @Override
                 public Boolean call() throws Exception {
                     try {
-                        TaskLauncher.this.initDataSpaces();
+                        TaskLauncherBak.this.initDataSpaces();
                         return true;
                     } catch (Throwable throwable) {
                         throw new ToUnwrapException(throwable);
@@ -1655,7 +1655,7 @@ public abstract class TaskLauncher implements InitActive {
                 @Override
                 public Boolean call() throws Exception {
                     try {
-                        TaskLauncher.this.executePreScript();
+                        TaskLauncherBak.this.executePreScript();
                         return true;
                     } catch (Throwable throwable) {
                         throw new ToUnwrapException(throwable);
@@ -1675,7 +1675,7 @@ public abstract class TaskLauncher implements InitActive {
                 @Override
                 public Boolean call() throws Exception {
                     try {
-                        TaskLauncher.this.executePostScript(executionSucceed);
+                        TaskLauncherBak.this.executePostScript(executionSucceed);
                         return true;
                     } catch (Throwable throwable) {
                         throw new ToUnwrapException(throwable);
@@ -1695,7 +1695,7 @@ public abstract class TaskLauncher implements InitActive {
                 @Override
                 public Boolean call() throws Exception {
                     try {
-                        TaskLauncher.this.executeFlowScript(res);
+                        TaskLauncherBak.this.executeFlowScript(res);
                         return true;
                     } catch (Throwable throwable) {
                         throw new ToUnwrapException(throwable);
@@ -1715,7 +1715,7 @@ public abstract class TaskLauncher implements InitActive {
                 @Override
                 public Boolean call() throws Exception {
                     try {
-                        TaskLauncher.this.copyInputDataToScratch();
+                        TaskLauncherBak.this.copyInputDataToScratch();
                         return true;
                     } catch (Throwable throwable) {
                         throw new ToUnwrapException(throwable);
@@ -1737,7 +1737,7 @@ public abstract class TaskLauncher implements InitActive {
                 @Override
                 public Boolean call() throws Exception {
                     try {
-                        TaskLauncher.this.copyScratchDataToOutput();
+                        TaskLauncherBak.this.copyScratchDataToOutput();
                         return true;
                     } catch (Throwable throwable) {
                         throw new ToUnwrapException(throwable);
@@ -1758,7 +1758,7 @@ public abstract class TaskLauncher implements InitActive {
                 @Override
                 public Boolean call() throws Exception {
                     try {
-                        TaskLauncher.this.copyScratchDataToOutput(outputFiles);
+                        TaskLauncherBak.this.copyScratchDataToOutput(outputFiles);
                         return true;
                     } catch (Throwable throwable) {
                         throw new ToUnwrapException(throwable);
@@ -1774,7 +1774,7 @@ public abstract class TaskLauncher implements InitActive {
                 @Override
                 public Boolean call() throws Exception {
                     try {
-                        TaskLauncher.this.callInternalInit(targetedClass, parameterType, argument);
+                        TaskLauncherBak.this.callInternalInit(targetedClass, parameterType, argument);
                         return true;
                     } catch (Throwable throwable) {
                         throw new ToUnwrapException(throwable);
