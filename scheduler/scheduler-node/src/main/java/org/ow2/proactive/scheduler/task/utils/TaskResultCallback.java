@@ -4,7 +4,7 @@ import org.objectweb.proactive.extensions.annotation.ActiveObject;
 import org.ow2.proactive.scheduler.common.TaskTerminateNotification;
 import org.ow2.proactive.scheduler.common.task.TaskId;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
-import org.ow2.proactive.scheduler.task.forked.JavaForkerExecutable;
+import org.ow2.proactive.scheduler.task.forked.JavaForkerExecutableOld;
 
 
 @ActiveObject
@@ -13,9 +13,9 @@ public class TaskResultCallback implements TaskTerminateNotification {
     public TaskResultCallback() {
     };
 
-    private JavaForkerExecutable.LauncherGuard launcherGuard;
+    private JavaForkerExecutableOld.LauncherGuard launcherGuard;
 
-    public TaskResultCallback(JavaForkerExecutable.LauncherGuard launcherGuard) {
+    public TaskResultCallback(JavaForkerExecutableOld.LauncherGuard launcherGuard) {
         this.launcherGuard = launcherGuard;
     }
 
