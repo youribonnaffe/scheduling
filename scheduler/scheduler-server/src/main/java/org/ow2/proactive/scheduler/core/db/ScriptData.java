@@ -1,7 +1,7 @@
 package org.ow2.proactive.scheduler.core.db;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -42,7 +42,7 @@ public class ScriptData {
 
     private String script;
 
-    private List<String> scriptParameters;
+    private List<Serializable> scriptParameters;
 
     private boolean selectionScriptDynamic;
 
@@ -123,9 +123,9 @@ public class ScriptData {
         return new SimpleScript(script, scriptEngine, parameters());
     }
 
-    private String[] parameters() {
+    private Serializable[] parameters() {
         if (scriptParameters != null) {
-            return scriptParameters.toArray(new String[scriptParameters.size()]);
+            return scriptParameters.toArray(new Serializable[scriptParameters.size()]);
         } else {
             return new String[] {};
         }
@@ -135,11 +135,7 @@ public class ScriptData {
         scriptData.setScript(script.getScript());
         scriptData.setScriptEngine(script.getEngineName());
         if (script.getParameters() != null) {
-            List<String> parametersAsStrings = new ArrayList<String>();
-            for (Serializable parameter : script.getParameters()) {
-                parametersAsStrings.add(parameter.toString());
-            }
-            scriptData.setScriptParameters(parametersAsStrings);
+            scriptData.setScriptParameters(Arrays.asList(script.getParameters()));
         }
     }
 
@@ -176,11 +172,11 @@ public class ScriptData {
 
     @Column(name = "PARAMETERS")
     @Type(type = "org.hibernate.type.SerializableToBlobType", parameters = @Parameter(name = SerializableToBlobType.CLASS_NAME, value = "java.lang.Object"))
-    public List<String> getScriptParameters() {
+    public List<Serializable> getScriptParameters() {
         return scriptParameters;
     }
 
-    public void setScriptParameters(List<String> scriptParameters) {
+    public void setScriptParameters(List<Serializable> scriptParameters) {
         this.scriptParameters = scriptParameters;
     }
 
