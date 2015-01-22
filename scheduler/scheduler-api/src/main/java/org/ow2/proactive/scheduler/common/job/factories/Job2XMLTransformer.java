@@ -65,14 +65,12 @@ import org.ow2.proactive.scheduler.common.task.ParallelEnvironment;
 import org.ow2.proactive.scheduler.common.task.PropertyModifier;
 import org.ow2.proactive.scheduler.common.task.ScriptTask;
 import org.ow2.proactive.scheduler.common.task.Task;
-import org.ow2.proactive.scheduler.common.task.UpdatableProperties;
 import org.ow2.proactive.scheduler.common.task.dataspaces.FileSelector;
 import org.ow2.proactive.scheduler.common.task.dataspaces.InputSelector;
 import org.ow2.proactive.scheduler.common.task.dataspaces.OutputSelector;
 import org.ow2.proactive.scheduler.common.task.flow.FlowActionType;
 import org.ow2.proactive.scheduler.common.task.flow.FlowBlock;
 import org.ow2.proactive.scheduler.common.task.flow.FlowScript;
-import org.ow2.proactive.scheduler.common.task.util.BooleanWrapper;
 import org.ow2.proactive.scripting.GenerationScript;
 import org.ow2.proactive.scripting.Script;
 import org.ow2.proactive.scripting.SelectionScript;
@@ -84,7 +82,6 @@ import org.ow2.proactive.topology.descriptor.SingleHostDescriptor;
 import org.ow2.proactive.topology.descriptor.SingleHostExclusiveDescriptor;
 import org.ow2.proactive.topology.descriptor.ThresholdProximityDescriptor;
 import org.ow2.proactive.topology.descriptor.TopologyDescriptor;
-import org.ow2.proactive.utils.Tools;
 import org.apache.log4j.Logger;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
@@ -701,7 +698,7 @@ public class Job2XMLTransformer {
         Element codeE = doc.createElementNS(Schemas.SCHEMA_LATEST.namespace, XMLTags.SCRIPT_CODE.getXMLName());
         setAttribute(codeE, XMLAttributes.LANGUAGE, script.getEngineName(), true);
         String scriptText = script.getScript();
-        String[] params = script.getParameters();
+        Serializable[] params = script.getParameters();
         if (params != null) {
 
             scriptText = inlineScriptParametersInText(scriptText, params);
@@ -722,9 +719,9 @@ public class Job2XMLTransformer {
      * "params"
      *
      */
-    public static String inlineScriptParametersInText(String scriptText, String[] params) {
+    public static String inlineScriptParametersInText(String scriptText, Serializable[] params) {
         String paramsLine = "var args=[";
-        for (String param : params) {
+        for (Serializable param : params) {
             paramsLine += "\"" + param + "\",";
         }
         paramsLine = paramsLine.substring(0, paramsLine.length() - 1) + "];";
