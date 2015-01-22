@@ -61,10 +61,6 @@ import java.util.concurrent.*;
 
 public class TaskProActiveDataspaces implements TaskDataspaces {
 
-    // get working dir
-    // copy input
-    // copy output
-
     private static final Logger logger = Logger.getLogger(TaskProActiveDataspaces.class);
 
     private DataSpacesFileObject SCRATCH;
@@ -209,7 +205,7 @@ public class TaskProActiveDataspaces implements TaskDataspaces {
         ERROR, WARNING, INFO
     }
 
-    private StringBuffer clientLogs;
+    private StringBuffer clientLogs = new StringBuffer();
 
     protected void logDataspacesStatus(String message, DataspacesStatusLevel level) {
         final String eol = System.getProperty("line.separator");
