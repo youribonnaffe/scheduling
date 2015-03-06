@@ -201,6 +201,31 @@ public class TaskProActiveDataspaces implements TaskDataspaces {
         return new File(SCRATCH.getPath());
     }
 
+    @Override
+    public String getScratchURI() {
+        return SCRATCH.getVirtualURI();
+    }
+
+    @Override
+    public String getInputURI() {
+        return INPUT.getVirtualURI();
+    }
+
+    @Override
+    public String getOutputURI() {
+        return OUTPUT.getVirtualURI();
+    }
+
+    @Override
+    public String getUserURI() {
+        return USER.getVirtualURI();
+    }
+
+    @Override
+    public String getGlobalURI() {
+        return GLOBAL.getVirtualURI();
+    }
+
     protected enum DataspacesStatusLevel {
         ERROR, WARNING, INFO
     }
