@@ -139,6 +139,8 @@ public final class SchedulingMethodImpl implements SchedulingMethod {
         getRMProxiesManager().getUserRMProxy(job.getOwner(), job.getCredentials()).releaseNodes(nodeSet);
     }
 
+    private long s = System.currentTimeMillis();
+
     /**
      * Scheduling process. For this implementation, steps are :<br>
      * <ul>
@@ -224,7 +226,9 @@ public final class SchedulingMethodImpl implements SchedulingMethod {
                         //create launcher and try to start the task
                         node = nodeSet.get(0);
                         numberOfTaskStarted++;
+                        System.out.println("" + (System.currentTimeMillis() - s) + " creating execution for " + taskDescriptor.getTaskId());
                         createExecution(nodeSet, node, currentJob, internalTask, taskDescriptor);
+                        System.out.println("" + (System.currentTimeMillis() - s) + " created execution for " + taskDescriptor.getTaskId());
 
                         //if every task that should be launched have been removed
                         if (tasksToSchedule.isEmpty()) {
