@@ -32,7 +32,7 @@
  *
  *  * $$ACTIVEEON_INITIAL_DEV$$
  */
-package org.ow2.proactive.scheduler.newimpl;
+package org.ow2.proactive.scheduler.newimpl.data;
 
 import org.apache.log4j.Logger;
 import org.objectweb.proactive.api.PAActiveObject;
