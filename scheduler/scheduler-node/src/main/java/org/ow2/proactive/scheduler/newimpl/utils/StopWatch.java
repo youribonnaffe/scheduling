@@ -32,38 +32,28 @@
  *
  *  * $$ACTIVEEON_INITIAL_DEV$$
  */
-package org.ow2.proactive.scheduler.newimpl;
+package org.ow2.proactive.scheduler.newimpl.utils;
 
-import java.util.Timer;
-import java.util.TimerTask;
+/**
+ * Not thread safe.
+ */
+public class StopWatch {
 
+    private long duration = 0;
+    private long nanoTimeWhenStarted = 0;
 
-public class WallTimer {
-    private Timer timer;
-    private TaskKiller taskKiller;
-
-    public WallTimer(final long walltime, final TaskKiller taskKiller) {
-        this.taskKiller = taskKiller;
-        if (walltime > 0) {
-            timer = new Timer();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    synchronized (this) {
-                        taskKiller.kill();
-                    }
-                }
-            }, walltime);
-        }
+    public void start() {
+        nanoTimeWhenStarted = System.nanoTime();
     }
 
-    public synchronized boolean hasWallTimed() {
-        return taskKiller.wasKilled();
-    }
-
-    public void stop() {
-        if (timer != null) {
-            timer.cancel();
+    /**
+     * @return elapsed time in milliseconds since {@link #start()}
+     */
+    public long stop() {
+        if (nanoTimeWhenStarted != 0) {
+            duration += System.nanoTime() - nanoTimeWhenStarted;
+            nanoTimeWhenStarted = 0;
         }
+        return duration / 1000000;
     }
 }

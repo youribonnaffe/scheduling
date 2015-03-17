@@ -1,11 +1,10 @@
 /*
- * ################################################################
- *
+ *  *
  * ProActive Parallel Suite(TM): The Java(TM) library for
  *    Parallel, Distributed, Multi-Core Computing for
  *    Enterprise Grids & Clouds
  *
- * Copyright (C) 1997-2011 INRIA/University of
+ * Copyright (C) 1997-2014 INRIA/University of
  *                 Nice-Sophia Antipolis/ActiveEon
  * Contact: proactive@ow2.org or contact@activeeon.com
  *
@@ -31,31 +30,25 @@
  *                        http://proactive.inria.fr/team_members.htm
  *  Contributor(s):
  *
- * ################################################################
- * $$PROACTIVE_INITIAL_DEV$$
+ *  * $$ACTIVEEON_INITIAL_DEV$$
  */
-package org.ow2.proactive.scripting.helper.filetransfer.initializer;
+package org.ow2.proactive.scheduler.newimpl.utils;
 
-import org.ow2.proactive.scripting.helper.filetransfer.driver.FileTransfertDriver;
-import org.ow2.proactive.scripting.helper.filetransfer.initializer.FileTransfertProtocols.Protocol;
+public class TaskKiller {
 
+    private Thread threadToKill; // extract in class
+    private boolean wasKilled = false;
 
-/**
- * FileTransfertInitializer...
- *
- * @author The ProActive Team
- * @since ProActive Scheduling 1.0
- */
-public interface FileTransfertInitializer {
+    public TaskKiller(Thread threadToKill) { // executor service?
+        this.threadToKill = threadToKill;
+    }
 
-    Class<? extends FileTransfertDriver> getDriverClass();
+    public boolean wasKilled() {
+        return wasKilled;
+    }
 
-    Protocol getProtocol();
-
-    public String getHost();
-
-    public int getPort();
-
-    public String getUser();
-
+    public void kill() {
+        wasKilled = true;
+        threadToKill.interrupt();
+    }
 }

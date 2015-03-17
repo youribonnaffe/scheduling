@@ -32,13 +32,11 @@
  *
  *  * $$ACTIVEEON_INITIAL_DEV$$
  */
-package org.ow2.proactive.scheduler.newimpl;
+package org.ow2.proactive.scheduler.newimpl.utils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-
-import org.ow2.proactive.scheduler.util.process.ThreadReader;
 
 
 public class ProcessStreamsReader {
@@ -65,6 +63,7 @@ public class ProcessStreamsReader {
                 threadReadingError.join();
             }
         } catch (InterruptedException ignored) {
+            Thread.currentThread().interrupt();
         }
     }
 }
