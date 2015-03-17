@@ -75,35 +75,12 @@ public class TestWorkflowIterationAwareness extends SchedulerConsecutive {
             .getResource("/functionaltests/workflow/descriptors/flow_it_2.xml");
 
     private static final String preScript = //
-    "def f = new File(\"" + System.getProperty("java.io.tmpdir") + "/PRE_" + "\"+ variables.get('pas.task.iteration') + \" " + "_" + "\"+ variables.get('pas.task.replication') +\" " + "\"); \n" + //
+    "def f = new File(\"" + System.getProperty("java.io.tmpdir") + "/PRE_" + "\"+ variables.get('PAS_TASK_ITERATION') + \"" + "_" + "\"+ variables.get('PAS_TASK_REPLICATION') +\"" + "\"); \n" + //
         "f.createNewFile(); \n";
 
     private static final String postScript = //
-      "def f = new File(\"" + System.getProperty("java.io.tmpdir") + "/POST_" + "\"+ variables.get('pas.task.iteration') + \" " + "_" + "\"+ variables.get('pas.task.replication') +\" " + "\"); \n" + //
+      "def f = new File(\"" + System.getProperty("java.io.tmpdir") + "/POST_" + "\"+ variables.get('PAS_TASK_ITERATION') + \"" + "_" + "\"+ variables.get('PAS_TASK_REPLICATION') +\"" + "\"); \n" + //
         "f.createNewFile(); \n";
-
-    private static final String dupScript = "enabled = true; \n" + "runs = 2; \n";
-
-    private static final String loopScript = //
-    "defID   = 3; \n" //
-        + "defRUNS = 2; \n" //
-        + "def f = new File(java.lang.System.getProperty(\"java.io.tmpdir\"), \"test_flow_lock_\" + ID); \n" //
-        + "defit = 0; \n" //
-        + "if (f.exists()) { \n" //
-        + "definput = new BufferedReader(new FileReader(f)); \n" //
-        + "it = java.lang.Integer.parseInt(input.readLine()); \n" + "input.close(); \n" //
-        + "f[\"delete\"](); \n" //
-        + "} \n" //
-        + "it++;\n" //
-        + "if (it < RUNS) { \n" //
-        + "loop = true; \n" //
-        + "f.createNewFile(); \n" //
-        + "defoutput = new BufferedWriter(new FileWriter(f)); \n" //
-        + "output.write(\"\" + it); \n" //
-        + "output.close(); \n" //
-        + "} else { \n" //
-        + "loop = false; \n" //
-        + "} \n";
 
     /**
      * Checks Java and Native executables

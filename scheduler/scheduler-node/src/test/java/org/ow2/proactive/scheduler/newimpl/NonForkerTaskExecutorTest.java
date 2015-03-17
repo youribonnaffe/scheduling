@@ -42,9 +42,9 @@ public class NonForkerTaskExecutorTest {
         initializer.setTaskId(TaskIdImpl.createTaskId(JobIdImpl.makeJobId("1000"), "job", 1000L, false));
 
         TaskResultImpl result = new NonForkedTaskExecutor().execute(new TaskContext(
-            new ForkedScriptExecutableContainer(new TaskScript(new SimpleScript(
-                "print('hello'); java.lang.Thread.sleep(5); result='hello'", "javascript"))), initializer),
-                taskOutput.outputStream, taskOutput.error);
+            new ForkedScriptExecutableContainer(new TaskScript(
+              new SimpleScript("print('hello'); java.lang.Thread.sleep(5); result='hello'", "javascript"))),
+            initializer), taskOutput.outputStream, taskOutput.error);
 
         assertEquals("prehellopost", taskOutput.output());
         assertEquals("hello", result.value());
@@ -57,9 +57,9 @@ public class NonForkerTaskExecutorTest {
 
         TaskLauncherInitializer initializer = new TaskLauncherInitializer();
         initializer.setReplicationIndex(42);
-        String printEnvVariables = "print(variables.get('pas.job.name') + '@' + "
-            + "variables.get('pas.job.id') + '@' + variables.get('pas.task.name') "
-            + "+ '@' + variables.get('pas.task.id') +'\\n')";
+        String printEnvVariables = "print(variables.get('PAS_JOB_NAME') + '@' + "
+            + "variables.get('PAS_JOB_ID') + '@' + variables.get('PAS_TASK_NAME') "
+            + "+ '@' + variables.get('PAS_TASK_ID') +'\\n')";
         initializer.setPreScript(new SimpleScript(printEnvVariables, "javascript"));
         initializer.setPostScript(new SimpleScript(printEnvVariables, "javascript"));
         initializer.setTaskId(TaskIdImpl.createTaskId(new JobIdImpl(1000, "job"), "task", 42L, false));
@@ -81,7 +81,7 @@ public class NonForkerTaskExecutorTest {
         TaskLauncherInitializer initializer = new TaskLauncherInitializer();
         initializer.setReplicationIndex(7);
         initializer.setIterationIndex(6);
-        String script = "result = variables.get('pas.task.iteration') * variables.get('pas.task.replication')";
+        String script = "result = variables.get('PAS_TASK_ITERATION') * variables.get('PAS_TASK_REPLICATION')";
         initializer.setTaskId(TaskIdImpl.createTaskId(new JobIdImpl(1000, "job"), "task", 42L, false));
 
         TaskResultImpl result = new NonForkedTaskExecutor().execute(new TaskContext(
@@ -128,7 +128,7 @@ public class NonForkerTaskExecutorTest {
             SerializationUtil.serializeVariableMap(variablesFromParent)) };
 
         new NonForkedTaskExecutor().execute(new TaskContext(new ForkedScriptExecutableContainer(
-          new TaskScript(new SimpleScript("print(variables.get('var'));print(variables.get('pas.task.id'))",
+          new TaskScript(new SimpleScript("print(variables.get('var'));print(variables.get('PAS_TASK_ID'))",
             "javascript"))), initializer, previousTasksResults), taskOutput.outputStream, taskOutput.error);
 
         assertEquals("parent42", taskOutput.output());
@@ -144,8 +144,8 @@ public class NonForkerTaskExecutorTest {
         TaskResult[] previousTasksResults = { new TaskResultImpl(null, "aresult", null, 0) };
 
         new NonForkedTaskExecutor().execute(new TaskContext(new ForkedScriptExecutableContainer(
-            new TaskScript(new SimpleScript("print(results[0]);", "javascript"))), initializer,
-            previousTasksResults), taskOutput.outputStream, taskOutput.error);
+          new TaskScript(new SimpleScript("print(results[0]);", "javascript"))), initializer,
+          previousTasksResults), taskOutput.outputStream, taskOutput.error);
 
         assertEquals("aresult", taskOutput.output());
     }
@@ -259,21 +259,21 @@ public class NonForkerTaskExecutorTest {
         TestTaskOutput taskOutput = new TestTaskOutput();
 
         TaskLauncherInitializer initializer = new TaskLauncherInitializer();
-        String printEnvVariables = "print(args[0])";
+        String printArgs = "println(args[0] + args[1]);";
         initializer.setPreScript(
-          new SimpleScript(printEnvVariables, "javascript", new Serializable[] { "$CREDENTIALS_PASSWORD" }));
-        initializer.setPostScript(
-          new SimpleScript(printEnvVariables, "javascript", new Serializable[] { "$CREDENTIALS_PASSWORD" }));
+          new SimpleScript(printArgs, "javascript", new Serializable[] { "$CREDENTIALS_PASSWORD", "$PAS_JOB_ID" }));
+        initializer.setPostScript(new SimpleScript(printArgs, "javascript",
+          new Serializable[] { "$CREDENTIALS_PASSWORD", "$PAS_JOB_ID" }));
         initializer.setTaskId(TaskIdImpl.createTaskId(new JobIdImpl(1000, "job"), "task", 42L, false));
 
         Decrypter decrypter = createCredentials("somebody_that_does_not_exists");
         TaskContext taskContext = new TaskContext(new ForkedScriptExecutableContainer(
-            new TaskScript(new SimpleScript(printEnvVariables, "javascript",
-                new Serializable[] { "$CREDENTIALS_PASSWORD" }))), initializer);
+            new TaskScript(new SimpleScript(printArgs, "javascript",
+                new Serializable[] { "$CREDENTIALS_PASSWORD", "${PAS_JOB_ID}" }))), initializer);
         taskContext.setDecrypter(decrypter);
         new NonForkedTaskExecutor().execute(taskContext, taskOutput.outputStream, taskOutput.error);
 
-        assertEquals("p4ssw0rdp4ssw0rdp4ssw0rd", taskOutput.output()); // pre, task and post
+        assertEquals("p4ssw0rd1000\np4ssw0rd1000\np4ssw0rd1000\n", taskOutput.output()); // pre, task and post
     }
 
     private Decrypter createCredentials(String username) throws NoSuchAlgorithmException, KeyException {
