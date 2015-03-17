@@ -115,11 +115,9 @@ public class JavaScriptEngine extends AbstractScriptEngine {
             Serializable execute = javaExecutable.execute((TaskResult[]) context
                     .getAttribute(TaskScript.RESULTS_VARIABLE));
 
-            context.setAttribute(TaskScript.RESULT_VARIABLE, execute, ScriptContext.ENGINE_SCOPE);
             if (propagatedVariables != null) {
-                context.setAttribute(NonForkedTaskExecutor.VARIABLES_BINDING_NAME,
-                        SerializationUtil.deserializeVariableMap(propagatedVariables),
-                        ScriptContext.ENGINE_SCOPE);
+                ((Map<String, Serializable>) context.getAttribute(
+                  NonForkedTaskExecutor.VARIABLES_BINDING_NAME)).putAll(javaExecutable.getVariables());
             }
 
             output.close();

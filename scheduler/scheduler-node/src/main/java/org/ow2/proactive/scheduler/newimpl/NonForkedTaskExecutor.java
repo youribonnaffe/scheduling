@@ -112,7 +112,7 @@ public class NonForkedTaskExecutor implements TaskExecutor {
             scriptHandler.addBinding(MULTI_NODE_TASK_NODESET_BINDING_NAME, nodesUrls);
             scriptHandler.addBinding(MULTI_NODE_TASK_NODESURL_BINDING_NAME, nodesUrls);
 
-            replaceScriptParameters(container, thirdPartyCredentials);
+            replaceScriptParameters(container, thirdPartyCredentials, variables);
 
             StopWatch stopWatch = new StopWatch();
             TaskResultImpl taskResult;
@@ -204,10 +204,15 @@ public class NonForkedTaskExecutor implements TaskExecutor {
         }
     }
 
-    private void replaceScriptParameters(TaskContext container, Map<String, String> thirdPartyCredentials) {
-        // parameters replacement
+    private void replaceScriptParameters(TaskContext container, Map<String, String> thirdPartyCredentials,
+      Map<String, Serializable> variables) {
 
         Map<String, String> replacements = new HashMap<String, String>();
+        for (Map.Entry<String, Serializable> variable : variables.entrySet()) {
+            replacements.put("$" + variable.getKey(), variable.getValue().toString());
+            replacements.put("${" + variable.getKey() + "}", variable.getValue().toString());
+        }
+
         for (Map.Entry<String, String> credentialEntry : thirdPartyCredentials.entrySet()) {
             replacements.put(CREDENTIALS_KEY_PREFIX + credentialEntry.getKey(),
               credentialEntry.getValue());
@@ -215,7 +220,7 @@ public class NonForkedTaskExecutor implements TaskExecutor {
 
         // TODO should be done after script is executed (like if pre changes on replacement, should it be resolved after)
 
-        Script<Serializable> taskScript;
+        Script<Serializable> taskScript; // TODO clean this, only script container is needed
         if (container.getExecutableContainer() instanceof ScriptExecutableContainer) {
             taskScript = ((ScriptExecutableContainer) container.getExecutableContainer()).getScript();
         } else {
@@ -227,17 +232,32 @@ public class NonForkedTaskExecutor implements TaskExecutor {
 
         for (Script script : scripts) {
             if (script != null) {
-                Serializable[] args;
                 // TODO deal with java task
-                //                if(script.getEngineName().equals("java")){
-                //                    // args = (Map<>) script.getParameters()[0];
-                //                } else {
-                args = script.getParameters();
-                //                }
-                if (args != null) {
-                    for (int i = 0; i < args.length; i++) {
-                        if (args[i] instanceof String) {
-                            args[i] = replace((String) args[i], replacements);
+                if ("java".equals(script.getEngineName())) {
+                    try {
+                        Map<String, Serializable> deserializedArgs = SerializationUtil
+                                .deserializeVariableMap((Map<String, byte[]>) script.getParameters()[0]);
+                        for (Map.Entry<String, Serializable> deserializedARg : deserializedArgs.entrySet()) {
+                            if (deserializedARg.getValue() instanceof String) {
+                                deserializedARg.setValue(replace((String) deserializedARg.getValue(),
+                                        replacements));
+                            }
+                        }
+                        script.getParameters()[0] = new HashMap<String, byte[]>(
+                            SerializationUtil.serializeVariableMap(deserializedArgs));
+                    } catch (Exception e) {
+                        // silent failure here TODO
+                    }
+                } else if ("native".equals(script.getEngineName())) { // to replace script arguments
+                    script.setScript(replace(script.getScript(), replacements));
+                } else {
+                    Serializable[] args = script.getParameters();
+
+                    if (args != null) {
+                        for (int i = 0; i < args.length; i++) {
+                            if (args[i] instanceof String) {
+                                args[i] = replace((String) args[i], replacements);
+                            }
                         }
                     }
                 }
@@ -282,6 +302,7 @@ public class NonForkedTaskExecutor implements TaskExecutor {
         } else {
             script = ((ForkedScriptExecutableContainer) container.getExecutableContainer()).getScript();
         }
+
         ScriptResult<Serializable> scriptResult = scriptHandler.handle(script, output, error);
 
         if (scriptResult.errorOccured()) {
@@ -300,7 +321,9 @@ public class NonForkedTaskExecutor implements TaskExecutor {
             } catch (Throwable throwable) {
                 scriptHandler.addBinding(FlowScript.resultVariable, throwable);
             }
+
             ScriptResult<FlowAction> flowScriptResult = scriptHandler.handle(flowScript, output, error);
+
             if (flowScriptResult.errorOccured()) {
                 flowScriptResult.getException().printStackTrace(error);
                 taskResult.setException(flowScriptResult.getException());

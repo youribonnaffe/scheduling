@@ -35,23 +35,21 @@
 package org.ow2.proactive.scheduler.task;
 
 /**
- * Scheduler related java properties. Thoses properties are automatically
- * translated into system property when the task is native (see NativeTaskLauncher) :
- * SYSENV_NAME = upcase(JAVAENV_NAME).replace('.','_')
+ * Scheduler related java properties.
  */
 public enum SchedulerVars {
     /**  */
-    JAVAENV_JOB_ID_VARNAME("pas.job.id"),
+    JAVAENV_JOB_ID_VARNAME("PAS_JOB_ID"),
     /**  */
-    JAVAENV_JOB_NAME_VARNAME("pas.job.name"),
+    JAVAENV_JOB_NAME_VARNAME("PAS_JOB_NAME"),
     /**  */
-    JAVAENV_TASK_ID_VARNAME("pas.task.id"),
+    JAVAENV_TASK_ID_VARNAME("PAS_TASK_ID"),
     /**  */
-    JAVAENV_TASK_NAME_VARNAME("pas.task.name"),
+    JAVAENV_TASK_NAME_VARNAME("PAS_TASK_NAME"),
     /**  */
-    JAVAENV_TASK_ITERATION("pas.task.iteration"),
+    JAVAENV_TASK_ITERATION("PAS_TASK_ITERATION"),
     /**  */
-    JAVAENV_TASK_REPLICATION("pas.task.replication");
+    JAVAENV_TASK_REPLICATION("PAS_TASK_REPLICATION");
 
     String varName;
 
