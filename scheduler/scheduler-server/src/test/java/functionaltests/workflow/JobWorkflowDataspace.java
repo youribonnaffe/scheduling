@@ -56,8 +56,8 @@ public class JobWorkflowDataspace extends JavaExecutable {
     @Override
     public Serializable execute(TaskResult... results) throws Throwable {
 
-        DataSpacesFileObject dsf = getLocalFile(getVariables().get("PAS_TASK_ITERATION") + "_" +
-            getVariables().get("PAS_TASK_REPLICATION") + ".in");
+        DataSpacesFileObject dsf = getLocalFile(getVariables().get("PA_TASK_ITERATION") + "_" +
+            getVariables().get("PA_TASK_REPLICATION") + ".in");
 
         InputStream in = dsf.getContent().getInputStream();
 
@@ -70,10 +70,10 @@ public class JobWorkflowDataspace extends JavaExecutable {
         line = line.toUpperCase();
 
         getLocalFile(
-                getVariables().get("PAS_TASK_ITERATION") + "_" + getVariables().get("PAS_TASK_REPLICATION") +
+                getVariables().get("PA_TASK_ITERATION") + "_" + getVariables().get("PA_TASK_REPLICATION") +
                     ".out").createFile();
-        DataSpacesFileObject dsfOut = getLocalFile(getVariables().get("PAS_TASK_ITERATION") + "_" +
-            getVariables().get("PAS_TASK_REPLICATION") + ".out");
+        DataSpacesFileObject dsfOut = getLocalFile(getVariables().get("PA_TASK_ITERATION") + "_" +
+            getVariables().get("PA_TASK_REPLICATION") + ".out");
         OutputStream out = dsfOut.getContent().getOutputStream();
         out.write(line.getBytes());
         out.close();

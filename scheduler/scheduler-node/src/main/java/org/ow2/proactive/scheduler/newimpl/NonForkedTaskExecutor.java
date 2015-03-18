@@ -34,6 +34,9 @@
  */
 package org.ow2.proactive.scheduler.newimpl;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -132,6 +135,20 @@ public class NonForkedTaskExecutor implements TaskExecutor {
         }
     }
 
+    private String writeNodesFile(Set<String> nodesHosts) throws IOException {
+        if (nodesHosts.isEmpty()) {
+            return "";
+        } else {
+            File nodesFiles = File.createTempFile("pa_nodes", null);
+            FileWriter outputWriter = new FileWriter(nodesFiles);
+            for (String nodeHost : nodesHosts) {
+                outputWriter.append(nodeHost).append(System.getProperty("line.separator"));
+            }
+            outputWriter.close();
+            return nodesFiles.getAbsolutePath();
+        }
+    }
+
     private Map<String, Serializable> taskVariables(TaskContext container) throws Exception {
         Map<String, Serializable> variables = new HashMap<String, Serializable>();
 
@@ -146,7 +163,7 @@ public class NonForkedTaskExecutor implements TaskExecutor {
                 for (TaskResult taskResult : container.getPreviousTasksResults()) {
                     if (taskResult.getPropagatedVariables() != null) {
                         variables.putAll(SerializationUtil.deserializeVariableMap(taskResult
-                          .getPropagatedVariables()));
+                                .getPropagatedVariables()));
                     }
                 }
             }
@@ -157,7 +174,10 @@ public class NonForkedTaskExecutor implements TaskExecutor {
         // variables from current job/task context
         variables.putAll(contextVariables(container.getInitializer()));
 
-        variables.put(SchedulerVars.JAVAENV_SCHEDULER_HOME.toString(), container.getSchedulerHome());
+        variables.put(SchedulerVars.PA_NODESNUMBER.toString(), container.getNodesURLs().size());
+        variables.put(SchedulerVars.PA_NODESFILE.toString(), writeNodesFile(container.getNodesHosts()));
+
+        variables.put(SchedulerVars.PA_SCHEDULER_HOME.toString(), container.getSchedulerHome());
 
         return variables;
     }
@@ -173,15 +193,15 @@ public class NonForkedTaskExecutor implements TaskExecutor {
 
     private Map<String, Serializable> contextVariables(TaskLauncherInitializer initializer) {
         Map<String, Serializable> variables = new HashMap<String, Serializable>();
-        variables.put(SchedulerVars.JAVAENV_JOB_ID_VARNAME.toString(), initializer.getTaskId().getJobId()
-          .value());
-        variables.put(SchedulerVars.JAVAENV_JOB_NAME_VARNAME.toString(), initializer.getTaskId().getJobId()
-          .getReadableName());
-        variables.put(SchedulerVars.JAVAENV_TASK_ID_VARNAME.toString(), initializer.getTaskId().value());
-        variables.put(SchedulerVars.JAVAENV_TASK_NAME_VARNAME.toString(), initializer.getTaskId()
-          .getReadableName());
-        variables.put(SchedulerVars.JAVAENV_TASK_ITERATION.toString(), initializer.getIterationIndex());
-        variables.put(SchedulerVars.JAVAENV_TASK_REPLICATION.toString(), initializer.getReplicationIndex());
+        variables.put(SchedulerVars.PA_JOB_ID.toString(), initializer.getTaskId().getJobId()
+                .value());
+        variables.put(SchedulerVars.PA_JOB_NAME.toString(), initializer.getTaskId().getJobId()
+                .getReadableName());
+        variables.put(SchedulerVars.PA_TASK_ID.toString(), initializer.getTaskId().value());
+        variables.put(SchedulerVars.PA_TASK_NAME.toString(), initializer.getTaskId()
+                .getReadableName());
+        variables.put(SchedulerVars.PA_TASK_ITERATION.toString(), initializer.getIterationIndex());
+        variables.put(SchedulerVars.PA_TASK_REPLICATION.toString(), initializer.getReplicationIndex());
         return variables;
     }
 
@@ -198,7 +218,7 @@ public class NonForkedTaskExecutor implements TaskExecutor {
     }
 
     private void replaceScriptParameters(TaskContext container, Map<String, String> thirdPartyCredentials,
-      Map<String, Serializable> variables) {
+            Map<String, Serializable> variables) {
 
         Map<String, String> replacements = new HashMap<String, String>();
         for (Map.Entry<String, Serializable> variable : variables.entrySet()) {
@@ -207,8 +227,7 @@ public class NonForkedTaskExecutor implements TaskExecutor {
         }
 
         for (Map.Entry<String, String> credentialEntry : thirdPartyCredentials.entrySet()) {
-            replacements.put(CREDENTIALS_KEY_PREFIX + credentialEntry.getKey(),
-              credentialEntry.getValue());
+            replacements.put(CREDENTIALS_KEY_PREFIX + credentialEntry.getKey(), credentialEntry.getValue());
         }
 
         // TODO should be done after script is executed (like if pre changes on replacement, should it be resolved after)
@@ -217,11 +236,10 @@ public class NonForkedTaskExecutor implements TaskExecutor {
         if (container.getExecutableContainer() instanceof ScriptExecutableContainer) {
             taskScript = ((ScriptExecutableContainer) container.getExecutableContainer()).getScript();
         } else {
-            taskScript = ((ForkedScriptExecutableContainer) container.getExecutableContainer())
-              .getScript();
+            taskScript = ((ForkedScriptExecutableContainer) container.getExecutableContainer()).getScript();
         }
-        Script[] scripts = new Script[] { container.getPreScript(), container.getPostScript(),
-          taskScript, container.getControlFlowScript() };
+        Script[] scripts = new Script[] { container.getPreScript(), container.getPostScript(), taskScript,
+                container.getControlFlowScript() };
 
         for (Script script : scripts) {
             if (script != null) {
@@ -267,7 +285,7 @@ public class NonForkedTaskExecutor implements TaskExecutor {
     }
 
     private Serializable execute(TaskContext container, PrintStream output, PrintStream error,
-      ScriptHandler scriptHandler) throws Exception {
+            ScriptHandler scriptHandler) throws Exception {
         if (container.getPreScript() != null) {
             ScriptResult preScriptResult = scriptHandler.handle(container.getPreScript(), output, error);
             if (preScriptResult.errorOccured()) {

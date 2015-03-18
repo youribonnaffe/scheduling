@@ -174,7 +174,7 @@ public abstract class AbstractJavaExecutable extends Executable {
      * @return the Iteration Index of this Task
      */
     public final int getIterationIndex() {
-        return (Integer) getVariables().get(SchedulerVars.JAVAENV_TASK_ITERATION.toString());
+        return (Integer) getVariables().get(SchedulerVars.PA_TASK_ITERATION.toString());
     }
 
     /**
@@ -188,7 +188,7 @@ public abstract class AbstractJavaExecutable extends Executable {
      * @return the Replication Index of this Task
      */
     public final int getReplicationIndex() {
-        return (Integer) getVariables().get(SchedulerVars.JAVAENV_TASK_REPLICATION.toString());
+        return (Integer) getVariables().get(SchedulerVars.PA_TASK_REPLICATION.toString());
     }
 
     /**

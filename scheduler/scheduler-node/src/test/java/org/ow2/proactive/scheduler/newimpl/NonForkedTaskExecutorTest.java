@@ -58,9 +58,9 @@ public class NonForkedTaskExecutorTest {
 
         TaskLauncherInitializer initializer = new TaskLauncherInitializer();
         initializer.setReplicationIndex(42);
-        String printEnvVariables = "print(variables.get('PAS_JOB_NAME') + '@' + "
-            + "variables.get('PAS_JOB_ID') + '@' + variables.get('PAS_TASK_NAME') "
-            + "+ '@' + variables.get('PAS_TASK_ID') +'\\n')";
+        String printEnvVariables = "print(variables.get('PA_JOB_NAME') + '@' + "
+            + "variables.get('PA_JOB_ID') + '@' + variables.get('PA_TASK_NAME') "
+            + "+ '@' + variables.get('PA_TASK_ID') +'\\n')";
         initializer.setPreScript(new SimpleScript(printEnvVariables, "javascript"));
         initializer.setPostScript(new SimpleScript(printEnvVariables, "javascript"));
         initializer.setTaskId(TaskIdImpl.createTaskId(new JobIdImpl(1000, "job"), "task", 42L, false));
@@ -82,7 +82,7 @@ public class NonForkedTaskExecutorTest {
         TaskLauncherInitializer initializer = new TaskLauncherInitializer();
         initializer.setReplicationIndex(7);
         initializer.setIterationIndex(6);
-        String script = "result = variables.get('PAS_TASK_ITERATION') * variables.get('PAS_TASK_REPLICATION')";
+        String script = "result = variables.get('PA_TASK_ITERATION') * variables.get('PA_TASK_REPLICATION')";
         initializer.setTaskId(TaskIdImpl.createTaskId(new JobIdImpl(1000, "job"), "task", 42L, false));
 
         TaskResultImpl result = new NonForkedTaskExecutor().execute(new TaskContext(
@@ -123,13 +123,13 @@ public class NonForkedTaskExecutorTest {
 
         Map<String, Serializable> variablesFromParent = new HashMap<String, Serializable>();
         variablesFromParent.put("var", "parent");
-        variablesFromParent.put(SchedulerVars.JAVAENV_TASK_ID_VARNAME.toString(), "1234");
+        variablesFromParent.put(SchedulerVars.PA_TASK_ID.toString(), "1234");
 
         TaskResult[] previousTasksResults = { new TaskResultImpl(null, null, null, null, null,
             SerializationUtil.serializeVariableMap(variablesFromParent)) };
 
         new NonForkedTaskExecutor().execute(new TaskContext(new ForkedScriptExecutableContainer(
-          new TaskScript(new SimpleScript("print(variables.get('var'));print(variables.get('PAS_TASK_ID'))",
+          new TaskScript(new SimpleScript("print(variables.get('var'));print(variables.get('PA_TASK_ID'))",
             "javascript"))), initializer, previousTasksResults), taskOutput.outputStream, taskOutput.error);
 
         assertEquals("parent42", taskOutput.output());
@@ -262,15 +262,15 @@ public class NonForkedTaskExecutorTest {
         TaskLauncherInitializer initializer = new TaskLauncherInitializer();
         String printArgs = "println(args[0] + args[1]);";
         initializer.setPreScript(
-          new SimpleScript(printArgs, "javascript", new Serializable[] { "$CREDENTIALS_PASSWORD", "$PAS_JOB_ID" }));
+          new SimpleScript(printArgs, "javascript", new Serializable[] { "$CREDENTIALS_PASSWORD", "$PA_JOB_ID" }));
         initializer.setPostScript(new SimpleScript(printArgs, "javascript",
-          new Serializable[] { "$CREDENTIALS_PASSWORD", "$PAS_JOB_ID" }));
+          new Serializable[] { "$CREDENTIALS_PASSWORD", "$PA_JOB_ID" }));
         initializer.setTaskId(TaskIdImpl.createTaskId(new JobIdImpl(1000, "job"), "task", 42L, false));
 
         Decrypter decrypter = createCredentials("somebody_that_does_not_exists");
         TaskContext taskContext = new TaskContext(new ForkedScriptExecutableContainer(
             new TaskScript(new SimpleScript(printArgs, "javascript",
-                new Serializable[] { "$CREDENTIALS_PASSWORD", "${PAS_JOB_ID}" }))), initializer);
+                new Serializable[] { "$CREDENTIALS_PASSWORD", "${PA_JOB_ID}" }))), initializer);
         taskContext.setDecrypter(decrypter);
         new NonForkedTaskExecutor().execute(taskContext, taskOutput.outputStream, taskOutput.error);
 
@@ -285,7 +285,7 @@ public class NonForkedTaskExecutorTest {
         initializer.setTaskId(TaskIdImpl.createTaskId(JobIdImpl.makeJobId("1000"), "job", 1000L, false));
 
         new NonForkedTaskExecutor().execute(new TaskContext(new ForkedScriptExecutableContainer(
-          new TaskScript(new SimpleScript("print(variables.get('PAS_SCHEDULER_HOME'))", "javascript"))),
+          new TaskScript(new SimpleScript("print(variables.get('PA_SCHEDULER_HOME'))", "javascript"))),
           initializer, ClasspathUtils.findSchedulerHome()), taskOutput.outputStream, taskOutput.error);
 
         assertEquals(ClasspathUtils.findSchedulerHome(), taskOutput.output());
