@@ -38,32 +38,14 @@ package org.ow2.proactive.scheduler.task;
  * Scheduler related java properties.
  */
 public enum SchedulerVars {
-    /**  */
-    JAVAENV_JOB_ID_VARNAME("PAS_JOB_ID"),
-    /**  */
-    JAVAENV_JOB_NAME_VARNAME("PAS_JOB_NAME"),
-    /**  */
-    JAVAENV_TASK_ID_VARNAME("PAS_TASK_ID"),
-    /**  */
-    JAVAENV_TASK_NAME_VARNAME("PAS_TASK_NAME"),
-    /**  */
-    JAVAENV_TASK_ITERATION("PAS_TASK_ITERATION"),
-    /**  */
-    JAVAENV_TASK_REPLICATION("PAS_TASK_REPLICATION"),
+    PA_JOB_ID,
+    PA_JOB_NAME,
+    PA_TASK_ID,
+    PA_TASK_NAME,
+    PA_TASK_ITERATION,
+    PA_TASK_REPLICATION,
+    PA_SCHEDULER_HOME,
+    PA_NODESFILE,
+    PA_NODESNUMBER;
 
-    JAVAENV_SCHEDULER_HOME("PAS_SCHEDULER_HOME");
-
-    String varName;
-
-    SchedulerVars(String vn) {
-        varName = vn;
-    }
-
-    /**
-     * @see Enum#toString()
-     */
-    @Override
-    public String toString() {
-        return varName;
-    }
 }

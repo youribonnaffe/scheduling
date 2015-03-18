@@ -3,6 +3,8 @@ package org.ow2.proactive.scheduler.newimpl.java;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
@@ -14,7 +16,6 @@ import org.ow2.proactive.scheduler.examples.WaitAndPrint;
 import org.ow2.proactive.scheduler.task.SchedulerVars;
 import org.junit.Test;
 
-import static java.util.Collections.singletonMap;
 import static org.junit.Assert.*;
 
 
@@ -48,8 +49,10 @@ public class JavaScriptEngineFactoryTest {
         engine.getContext().setWriter(output);
         engine.getContext().setErrorWriter(new PrintWriter(error));
 
+        Map<String, Integer> variables = new HashMap<String, Integer>();
+        variables.put(SchedulerVars.PA_TASK_REPLICATION.toString(), 42);
         engine.getContext().setAttribute("variables",
-                singletonMap(SchedulerVars.JAVAENV_TASK_REPLICATION.toString(), 42),
+          variables,
                 ScriptContext.ENGINE_SCOPE);
 
         Object result = engine.eval(ReturnReplicationIndex.class.getName());

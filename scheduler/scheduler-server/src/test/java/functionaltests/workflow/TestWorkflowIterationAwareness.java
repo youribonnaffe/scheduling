@@ -75,11 +75,11 @@ public class TestWorkflowIterationAwareness extends SchedulerConsecutive {
             .getResource("/functionaltests/workflow/descriptors/flow_it_2.xml");
 
     private static final String preScript = //
-    "def f = new File(\"" + System.getProperty("java.io.tmpdir") + "/PRE_" + "\"+ variables.get('PAS_TASK_ITERATION') + \"" + "_" + "\"+ variables.get('PAS_TASK_REPLICATION') +\"" + "\"); \n" + //
+    "def f = new File(\"" + System.getProperty("java.io.tmpdir") + "/PRE_" + "\"+ variables.get('PA_TASK_ITERATION') + \"" + "_" + "\"+ variables.get('PA_TASK_REPLICATION') +\"" + "\"); \n" + //
         "f.createNewFile(); \n";
 
     private static final String postScript = //
-      "def f = new File(\"" + System.getProperty("java.io.tmpdir") + "/POST_" + "\"+ variables.get('PAS_TASK_ITERATION') + \"" + "_" + "\"+ variables.get('PAS_TASK_REPLICATION') +\"" + "\"); \n" + //
+      "def f = new File(\"" + System.getProperty("java.io.tmpdir") + "/POST_" + "\"+ variables.get('PA_TASK_ITERATION') + \"" + "_" + "\"+ variables.get('PA_TASK_REPLICATION') +\"" + "\"); \n" + //
         "f.createNewFile(); \n";
 
     /**

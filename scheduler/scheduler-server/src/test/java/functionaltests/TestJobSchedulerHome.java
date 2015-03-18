@@ -74,7 +74,7 @@ public class TestJobSchedulerHome extends FunctionalTest {
     @Before
     public void init() throws Throwable {
         pahomeScript = new SimpleScript(
-            "prop = variables.get(\"PAS_SCHEDULER_HOME\"); \n"
+            "prop = variables.get(\"PA_SCHEDULER_HOME\"); \n"
                 + "if (expectedHome != prop) throw new Error(\"Invalid java home, expected : \" + expectedHome + \", received : + \" + prop)\n",
             "javascript");
         SchedulerTHelper.startScheduler();
@@ -150,7 +150,7 @@ public class TestJobSchedulerHome extends FunctionalTest {
         task1.setName(tname);
 
         if (OperatingSystem.getOperatingSystem() == OperatingSystem.windows) {
-            task1.setCommandLine("cmd.exe", "/c", "echo %variables_PAS_SCHEDULER_HOMEe%");
+            task1.setCommandLine("cmd.exe", "/c", "echo %variables_PA_SCHEDULER_HOMEe%");
         } else {
             //task1.setCommandLine("bash", "-c", "echo ${variables_proactive.home}");
             task1.setCommandLine("env");

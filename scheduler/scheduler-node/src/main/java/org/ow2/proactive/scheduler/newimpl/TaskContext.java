@@ -38,11 +38,13 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.objectweb.proactive.api.PAActiveObject;
 import org.objectweb.proactive.core.node.Node;
-import org.ow2.proactive.scheduler.newimpl.utils.Decrypter;
+import org.objectweb.proactive.core.node.NodeException;
 import org.ow2.proactive.scheduler.common.task.TaskId;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
 import org.ow2.proactive.scheduler.common.task.flow.FlowScript;
+import org.ow2.proactive.scheduler.newimpl.utils.Decrypter;
 import org.ow2.proactive.scheduler.task.ExecutableContainer;
 import org.ow2.proactive.scheduler.task.TaskLauncherInitializer;
 import org.ow2.proactive.scripting.Script;
@@ -50,6 +52,8 @@ import org.ow2.proactive.scripting.Script;
 
 public class TaskContext implements Serializable {
     private final Set<String> nodesURLs;
+    private final Set<String> nodesHosts;
+
     private ExecutableContainer executableContainer;
     private TaskLauncherInitializer initializer;
     private Decrypter decrypter;
@@ -62,23 +66,24 @@ public class TaskContext implements Serializable {
     private final String globalURI;
     private final String schedulerHome;
 
-    public TaskContext(ExecutableContainer executableContainer, TaskLauncherInitializer initializer) {
+    public TaskContext(ExecutableContainer executableContainer, TaskLauncherInitializer initializer) throws
+      NodeException {
         this(executableContainer, initializer, null, "", "", "", "","", "");
     }
 
     public TaskContext(ExecutableContainer executableContainer,
-            TaskLauncherInitializer initializer, TaskResult[] previousTasksResults) {
+            TaskLauncherInitializer initializer, TaskResult[] previousTasksResults) throws NodeException {
         this(executableContainer, initializer, previousTasksResults, "", "", "", "","", "");
     }
 
     public TaskContext(ExecutableContainer executableContainer,
-      TaskLauncherInitializer initializer, String schedulerHome) {
+      TaskLauncherInitializer initializer, String schedulerHome) throws NodeException {
         this(executableContainer, initializer, null, "", "", "", "","", schedulerHome);
     }
 
     public TaskContext(ExecutableContainer executableContainer, TaskLauncherInitializer initializer,
             TaskResult[] previousTasksResults, String scratchURI, String inputURI, String outputURI,
-            String userURI, String globalURI, String schedulerHome) {
+            String userURI, String globalURI, String schedulerHome) throws NodeException {
         this.initializer = initializer; // copy?
         this.previousTasksResults = previousTasksResults;
         this.scratchURI = scratchURI;
@@ -91,9 +96,12 @@ public class TaskContext implements Serializable {
         this.executableContainer = executableContainer;
 
         nodesURLs = new HashSet<String>();
+        nodesHosts = new HashSet<String>();
         if (executableContainer.getNodes() != null) {
+            nodesHosts.add(PAActiveObject.getNode().getNodeInformation().getVMInformation().getHostName());
             for (Node node : executableContainer.getNodes()) {
                 nodesURLs.add(node.getNodeInformation().getURL());
+                nodesHosts.add(node.getNodeInformation().getVMInformation().getHostName());
             }
             executableContainer.setNodes(null);
         }
@@ -166,5 +174,9 @@ public class TaskContext implements Serializable {
 
     public String getSchedulerHome() {
         return schedulerHome;
+    }
+
+    public Set<String> getNodesHosts() {
+        return nodesHosts;
     }
 }
