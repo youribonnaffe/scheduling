@@ -51,7 +51,7 @@ public class ScriptExecutableContainer extends JavaExecutableContainer {
     private TaskScript script;
 
     public ScriptExecutableContainer(TaskScript script) {
-        super("TODO", Collections.<String, byte[]> emptyMap());
+        super(Collections.<String, byte[]> emptyMap());
         this.script = script;
     }
 

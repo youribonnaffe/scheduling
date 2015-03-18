@@ -60,19 +60,25 @@ public class TaskContext implements Serializable {
     private final String outputURI;
     private final String userURI;
     private final String globalURI;
+    private final String schedulerHome;
 
     public TaskContext(ExecutableContainer executableContainer, TaskLauncherInitializer initializer) {
-        this(executableContainer, initializer, null, "", "", "", "","");
+        this(executableContainer, initializer, null, "", "", "", "","", "");
     }
 
     public TaskContext(ExecutableContainer executableContainer,
             TaskLauncherInitializer initializer, TaskResult[] previousTasksResults) {
-        this(executableContainer, initializer, previousTasksResults, "", "", "", "","");
-        this.previousTasksResults = previousTasksResults;
+        this(executableContainer, initializer, previousTasksResults, "", "", "", "","", "");
     }
 
     public TaskContext(ExecutableContainer executableContainer,
-                       TaskLauncherInitializer initializer, TaskResult[] previousTasksResults, String scratchURI, String inputURI, String outputURI, String userURI, String globalURI) {
+      TaskLauncherInitializer initializer, String schedulerHome) {
+        this(executableContainer, initializer, null, "", "", "", "","", schedulerHome);
+    }
+
+    public TaskContext(ExecutableContainer executableContainer, TaskLauncherInitializer initializer,
+            TaskResult[] previousTasksResults, String scratchURI, String inputURI, String outputURI,
+            String userURI, String globalURI, String schedulerHome) {
         this.initializer = initializer; // copy?
         this.previousTasksResults = previousTasksResults;
         this.scratchURI = scratchURI;
@@ -80,6 +86,7 @@ public class TaskContext implements Serializable {
         this.outputURI = outputURI;
         this.userURI = userURI;
         this.globalURI = globalURI;
+        this.schedulerHome = schedulerHome;
         initializer.setNamingService(null);
         this.executableContainer = executableContainer;
 
@@ -155,5 +162,9 @@ public class TaskContext implements Serializable {
 
     public boolean isRunAsUser() {
         return getExecutableContainer().isRunAsUser();
+    }
+
+    public String getSchedulerHome() {
+        return schedulerHome;
     }
 }

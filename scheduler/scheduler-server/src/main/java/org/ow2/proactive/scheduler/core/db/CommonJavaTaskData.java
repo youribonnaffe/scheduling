@@ -17,13 +17,13 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 
+import org.ow2.proactive.scheduler.common.task.util.ByteArrayWrapper;
+import org.ow2.proactive.scheduler.task.java.JavaExecutableContainer;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.Type;
 import org.hibernate.type.SerializableToBlobType;
-import org.ow2.proactive.scheduler.common.task.util.ByteArrayWrapper;
-import org.ow2.proactive.scheduler.task.java.JavaExecutableContainer;
 
 
 @MappedSuperclass
@@ -39,8 +39,6 @@ public class CommonJavaTaskData implements Serializable {
 
     protected void initProperties(TaskData taskData, JavaExecutableContainer container) {
         setTaskData(taskData);
-
-        setUserExecutableClassName(container.getUserExecutableClassName());
 
         Map<String, ByteArrayWrapper> args = container.getSerializedArguments();
 

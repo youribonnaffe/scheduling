@@ -36,14 +36,10 @@
  */
 package org.ow2.proactive.scheduler.task.forked;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.ow2.proactive.scheduler.common.exception.ExecutableCreationException;
 import org.ow2.proactive.scheduler.common.task.ForkEnvironment;
-import org.ow2.proactive.scheduler.common.task.executable.internal.JavaExecutableInitializerImpl;
-import org.ow2.proactive.scheduler.common.task.util.ByteArrayWrapper;
 import org.ow2.proactive.scheduler.task.java.JavaExecutableContainer;
 import org.apache.log4j.Logger;
 
@@ -70,7 +66,7 @@ public class ForkedJavaExecutableContainer extends JavaExecutableContainer {
      * @param args the arguments for Executable.init() method.
      */
     public ForkedJavaExecutableContainer(String userExecutableClassName, Map<String, byte[]> args) {
-        super(userExecutableClassName, args);
+        super(args);
     }
 
     /**

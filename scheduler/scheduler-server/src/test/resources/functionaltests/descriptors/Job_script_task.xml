@@ -38,12 +38,12 @@
 			<scriptExecutable>
 				<script>
 					<code language="groovy">
-						print('pas.job.id=' + variables.get("pas.job.id"));
-						print('pas.job.name=' + variables.get("pas.job.name"));
-						print('pas.task.id=' + variables.get("pas.task.id"));
-						print('pas.task.name=' + variables.get("pas.task.name"));
-						print('pas.task.iteration=' + variables.get("pas.task.iteration"));
-						print('pas.task.replication=' + variables.get("pas.task.replication"));
+						print('PAS_JOB_ID=' + variables.get("PAS_JOB_ID"));
+						print('PAS_JOB_NAME=' + variables.get("PAS_JOB_NAME"));
+						print('PAS_TASK_ID=' + variables.get("PAS_TASK_ID"));
+						print('PAS_TASK_NAME=' + variables.get("PAS_TASK_NAME"));
+						print('PAS_TASK_ITERATION=' + variables.get("PAS_TASK_ITERATION"));
+						print('PAS_TASK_REPLICATION=' + variables.get("PAS_TASK_REPLICATION"));
 					</code>
 				</script>
 			</scriptExecutable>

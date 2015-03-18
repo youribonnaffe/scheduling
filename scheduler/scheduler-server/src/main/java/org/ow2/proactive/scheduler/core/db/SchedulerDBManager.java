@@ -154,7 +154,6 @@ public class SchedulerDBManager {
             configuration.addAnnotatedClass(TaskData.class);
             configuration.addAnnotatedClass(TaskResultData.class);
             configuration.addAnnotatedClass(JobClasspathContent.class);
-            configuration.addAnnotatedClass(JavaTaskData.class);
             configuration.addAnnotatedClass(ForkedJavaTaskData.class);
             configuration.addAnnotatedClass(ScriptTaskData.class);
             configuration.addAnnotatedClass(ScriptData.class);
@@ -662,8 +661,6 @@ public class SchedulerDBManager {
     private void removeJobRuntimeData(Session session, long jobId) {
         removeJobScripts(session, jobId);
 
-        session.createQuery("delete from JavaTaskData where taskData.id.jobId = :jobId").setParameter(
-                "jobId", jobId).executeUpdate();
         session.createQuery("delete from ForkedJavaTaskData where taskData.id.jobId = :jobId").setParameter(
                 "jobId", jobId).executeUpdate();
         session.createQuery("delete from ScriptTaskData where taskData.id.jobId = :jobId").setParameter(

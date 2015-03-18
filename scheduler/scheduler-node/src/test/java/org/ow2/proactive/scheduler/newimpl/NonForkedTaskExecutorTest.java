@@ -25,12 +25,13 @@ import org.ow2.proactive.scheduler.task.TaskResultImpl;
 import org.ow2.proactive.scheduler.task.script.ForkedScriptExecutableContainer;
 import org.ow2.proactive.scripting.SimpleScript;
 import org.ow2.proactive.scripting.TaskScript;
+import org.ow2.proactive.utils.ClasspathUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 
-public class NonForkerTaskExecutorTest {
+public class NonForkedTaskExecutorTest {
 
     @Test
     public void simpleScriptTask() throws Throwable {
@@ -274,6 +275,20 @@ public class NonForkerTaskExecutorTest {
         new NonForkedTaskExecutor().execute(taskContext, taskOutput.outputStream, taskOutput.error);
 
         assertEquals("p4ssw0rd1000\np4ssw0rd1000\np4ssw0rd1000\n", taskOutput.output()); // pre, task and post
+    }
+
+    @Test
+    public void schedulerHomeIsInVariables() throws Throwable {
+        TestTaskOutput taskOutput = new TestTaskOutput();
+
+        TaskLauncherInitializer initializer = new TaskLauncherInitializer();
+        initializer.setTaskId(TaskIdImpl.createTaskId(JobIdImpl.makeJobId("1000"), "job", 1000L, false));
+
+        new NonForkedTaskExecutor().execute(new TaskContext(new ForkedScriptExecutableContainer(
+          new TaskScript(new SimpleScript("print(variables.get('PAS_SCHEDULER_HOME'))", "javascript"))),
+          initializer, ClasspathUtils.findSchedulerHome()), taskOutput.outputStream, taskOutput.error);
+
+        assertEquals(ClasspathUtils.findSchedulerHome(), taskOutput.output());
     }
 
     private Decrypter createCredentials(String username) throws NoSuchAlgorithmException, KeyException {
