@@ -40,13 +40,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.objectweb.proactive.core.config.CentralPAPropertyRepository;
-import org.ow2.proactive.resourcemanager.core.properties.PAResourceManagerProperties;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
 import org.ow2.proactive.scheduler.common.task.flow.FlowAction;
 import org.ow2.proactive.scheduler.common.task.flow.FlowScript;
 import org.ow2.proactive.scheduler.common.task.util.SerializationUtil;
-import org.ow2.proactive.scheduler.core.properties.PASchedulerProperties;
 import org.ow2.proactive.scheduler.newimpl.utils.StopWatch;
 import org.ow2.proactive.scheduler.task.SchedulerVars;
 import org.ow2.proactive.scheduler.task.TaskLauncherInitializer;
@@ -58,7 +55,6 @@ import org.ow2.proactive.scripting.ScriptHandler;
 import org.ow2.proactive.scripting.ScriptLoader;
 import org.ow2.proactive.scripting.ScriptResult;
 import org.ow2.proactive.scripting.TaskScript;
-import org.ow2.proactive.utils.ClasspathUtils;
 
 
 /**
@@ -161,11 +157,8 @@ public class NonForkedTaskExecutor implements TaskExecutor {
         // variables from current job/task context
         variables.putAll(contextVariables(container.getInitializer()));
 
-        // ProActive homes
-        for (String variableName : new String[] { CentralPAPropertyRepository.PA_HOME.getName(),
-          PASchedulerProperties.SCHEDULER_HOME.getKey(), PAResourceManagerProperties.RM_HOME.getKey() }) {
-            variables.put(variableName, ClasspathUtils.findSchedulerHome());
-        }
+        variables.put(SchedulerVars.JAVAENV_SCHEDULER_HOME.toString(), container.getSchedulerHome());
+
         return variables;
     }
 

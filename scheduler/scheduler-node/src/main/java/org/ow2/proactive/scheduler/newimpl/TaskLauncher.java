@@ -62,6 +62,7 @@ import org.ow2.proactive.scheduler.task.ExecutableContainer;
 import org.ow2.proactive.scheduler.task.TaskLauncherInitializer;
 import org.ow2.proactive.scheduler.task.TaskResultImpl;
 import org.ow2.proactive.scheduler.task.script.ForkedScriptExecutableContainer;
+import org.ow2.proactive.utils.ClasspathUtils;
 import org.apache.log4j.Logger;
 
 
@@ -117,7 +118,7 @@ public class TaskLauncher {
 
             TaskContext context = new TaskContext(executableContainer, initializer, previousTasksResults,
                 dataspaces.getScratchURI(), dataspaces.getInputURI(), dataspaces.getOutputURI(),
-                dataspaces.getUserURI(), dataspaces.getGlobalURI());
+                dataspaces.getUserURI(), dataspaces.getGlobalURI(), ClasspathUtils.findSchedulerHome());
 
             if (decrypter != null) {
                 decrypter.setCredentials(executableContainer.getCredentials());

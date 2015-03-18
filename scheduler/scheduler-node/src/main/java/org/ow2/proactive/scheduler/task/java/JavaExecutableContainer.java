@@ -36,7 +36,6 @@
  */
 package org.ow2.proactive.scheduler.task.java;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -44,13 +43,9 @@ import java.util.Map.Entry;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import org.objectweb.proactive.core.node.Node;
-import org.ow2.proactive.scheduler.common.exception.ExecutableCreationException;
 import org.ow2.proactive.scheduler.common.task.executable.Executable;
-import org.ow2.proactive.scheduler.common.task.executable.internal.JavaExecutableInitializerImpl;
 import org.ow2.proactive.scheduler.common.task.util.ByteArrayWrapper;
 import org.ow2.proactive.scheduler.task.ExecutableContainer;
-import org.ow2.proactive.scheduler.task.ExecutableContainerInitializer;
 import org.ow2.proactive.scheduler.util.classloading.TaskClassServer;
 
 
@@ -64,8 +59,6 @@ import org.ow2.proactive.scheduler.util.classloading.TaskClassServer;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class JavaExecutableContainer extends ExecutableContainer {
 
-    protected String userExecutableClassName;
-
     /** Arguments of the task as a map */
     protected final Map<String, ByteArrayWrapper> serializedArguments = new HashMap<String, ByteArrayWrapper>();
 
@@ -77,11 +70,9 @@ public class JavaExecutableContainer extends ExecutableContainer {
 
     /**
      * Create a new container for JavaExecutable
-     * @param userExecutableClassName the classname of the user defined executable
      * @param args the serialized arguments for Executable.init() method.
      */
-    public JavaExecutableContainer(String userExecutableClassName, Map<String, byte[]> args) {
-        this.userExecutableClassName = userExecutableClassName;
+    public JavaExecutableContainer(Map<String, byte[]> args) {
         for (Entry<String, byte[]> e : args.entrySet()) {
             this.serializedArguments.put(e.getKey(), new ByteArrayWrapper(e.getValue()));
         }
@@ -93,88 +84,10 @@ public class JavaExecutableContainer extends ExecutableContainer {
      * @param cont original object to copy
      */
     public JavaExecutableContainer(JavaExecutableContainer cont) {
-        this.userExecutableClassName = cont.userExecutableClassName;
         for (Entry<String, ByteArrayWrapper> e : cont.serializedArguments.entrySet()) {
             this.serializedArguments.put(new String(e.getKey()), new ByteArrayWrapper(e.getValue()
                     .getByteArray()));
         }
-    }
-
-    /**
-     * @see org.ow2.proactive.scheduler.task.ExecutableContainer#getExecutable()
-     */
-    @Override
-    public Executable getExecutable() throws ExecutableCreationException {
-        if (this.userExecutable == null) {
-            // Instanciate the actual executable
-            try {
-//                TaskClassLoaderImpl tcl = new TaskClassLoaderImpl(this.getClass().getClassLoader(),
-//                    this.classServer);
-//                // the tcl becomes the context classloader
-//                Thread.currentThread().setContextClassLoader(tcl);
-                ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-                Class<?> userExecutableClass = tcl.loadClass(this.userExecutableClassName);
-                userExecutable = (Executable) userExecutableClass.newInstance();
-            } catch (ClassNotFoundException e) {
-                throw new ExecutableCreationException("Unable to instanciate JavaExecutable. " +
-                    this.userExecutableClassName + " class cannot be found", e);
-            } catch (InstantiationException e) {
-                throw new ExecutableCreationException("Unable to instanciate JavaExecutable. " +
-                    this.userExecutableClassName + " might not define no-args constructor", e);
-            } catch (ClassCastException e) {
-                throw new ExecutableCreationException(
-                    "Unable to instanciate JavaExecutable. " + this.userExecutableClassName +
-                        " might not inherit from org.ow2.proactive.scheduler.common.task.executable.JavaExecutable",
-                    e);
-            } catch (Throwable e) {
-                throw new ExecutableCreationException("Unable to instanciate JavaExecutable", e);
-            }
-        }
-        return userExecutable;
-    }
-
-    /**
-     * @see org.ow2.proactive.scheduler.task.ExecutableContainer#init(org.ow2.proactive.scheduler.task.ExecutableContainerInitializer)
-     */
-    @Override
-    public void init(ExecutableContainerInitializer initializer) {
-        // get the classserver if any (can be null)
-        // TODO FIXME this.classServer = initializer.getClassServer();
-    }
-
-    /**
-     * Get the classServer
-     *
-     * @return the classServer
-     */
-    public TaskClassServer getClassServer() {
-        return classServer;
-    }
-
-    /**
-     * @see org.ow2.proactive.scheduler.task.ExecutableContainer#createExecutableInitializer()
-     */
-    @Override
-    public JavaExecutableInitializerImpl createExecutableInitializer() {
-        JavaExecutableInitializerImpl jei = new JavaExecutableInitializerImpl();
-        Map<String, byte[]> tmp = new HashMap<String, byte[]>();
-        for (Entry<String, ByteArrayWrapper> e : this.serializedArguments.entrySet()) {
-            tmp.put(e.getKey(), e.getValue().getByteArray());
-        }
-        jei.setSerializedArguments(tmp);
-        jei.setNodes(nodes);
-        ArrayList<String> nodeUrl = new ArrayList<String>();
-        if (nodes != null) {
-            for (Node n : nodes) {
-                nodeUrl.add(n.getNodeInformation().getURL());
-            }
-        }
-        jei.setNodesURL(nodeUrl);
-        return jei;
-    }
-
-    public String getUserExecutableClassName() {
-        return userExecutableClassName;
     }
 
     public Map<String, ByteArrayWrapper> getSerializedArguments() {

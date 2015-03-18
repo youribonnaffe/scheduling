@@ -101,7 +101,7 @@ public class TestLoopTaskRestore extends FunctionalTest {
         mainTask.setExecutableClassName(LoopMainTask.class.getName());
         job.addTask(mainTask);
 
-        String loopScript = String.format("if (variables.get('pas.task.iteration') < %d) { loop = true; } else { loop = false; }",
+        String loopScript = String.format("if (variables.get('PAS_TASK_ITERATION') < %d) { loop = true; } else { loop = false; }",
                 ITERATIONS_NUMBER);
 
         JavaTask loopTask = new JavaTask();
