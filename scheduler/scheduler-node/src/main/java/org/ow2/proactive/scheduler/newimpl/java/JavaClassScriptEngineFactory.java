@@ -43,7 +43,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 
 
-public class JavaScriptEngineFactory implements ScriptEngineFactory {
+public class JavaClassScriptEngineFactory implements ScriptEngineFactory {
 
     private static final Map<String, Object> PARAMETERS = new HashMap<String, Object>();
 
@@ -112,6 +112,6 @@ public class JavaScriptEngineFactory implements ScriptEngineFactory {
 
     @Override
     public ScriptEngine getScriptEngine() {
-        return new JavaScriptEngine();
+        return new JavaClassScriptEngine();
     }
 }

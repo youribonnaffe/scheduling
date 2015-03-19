@@ -19,7 +19,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 
-public class JavaScriptEngineFactoryTest {
+public class JavaClassScriptEngineFactoryTest {
 
     @Test
     public void executable_with_output_and_result() throws Exception {

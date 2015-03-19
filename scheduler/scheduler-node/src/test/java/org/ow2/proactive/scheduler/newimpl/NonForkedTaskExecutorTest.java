@@ -286,7 +286,7 @@ public class NonForkedTaskExecutorTest {
 
         new NonForkedTaskExecutor().execute(new TaskContext(new ForkedScriptExecutableContainer(
           new TaskScript(new SimpleScript("print(variables.get('PA_SCHEDULER_HOME'))", "javascript"))),
-          initializer, ClasspathUtils.findSchedulerHome()), taskOutput.outputStream, taskOutput.error);
+          initializer), taskOutput.outputStream, taskOutput.error);
 
         assertEquals(ClasspathUtils.findSchedulerHome(), taskOutput.output());
     }
