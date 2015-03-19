@@ -44,14 +44,13 @@ import java.io.PrintStream;
 
 import org.objectweb.proactive.extensions.processbuilder.OSProcessBuilder;
 import org.objectweb.proactive.extensions.processbuilder.exception.NotImplementedException;
-import org.ow2.proactive.scheduler.newimpl.utils.Decrypter;
-import org.ow2.proactive.scheduler.core.properties.PASchedulerProperties;
 import org.ow2.proactive.scheduler.exception.ForkedJVMProcessException;
+import org.ow2.proactive.scheduler.newimpl.utils.Decrypter;
 import org.ow2.proactive.scheduler.newimpl.utils.ProcessStreamsReader;
+import org.ow2.proactive.scheduler.newimpl.utils.TaskProcessTreeKiller;
 import org.ow2.proactive.scheduler.task.ExecutableContainer;
 import org.ow2.proactive.scheduler.task.TaskResultImpl;
 import org.ow2.proactive.scheduler.task.forked.ForkedJavaExecutableContainer;
-import org.ow2.proactive.scheduler.newimpl.utils.TaskProcessTreeKiller;
 import org.ow2.proactive.scheduler.task.utils.ForkerUtils;
 import org.apache.commons.io.FileUtils;
 
@@ -82,7 +81,7 @@ public class ForkerTaskExecutor implements TaskExecutor {
             try {
                 taskProcessTreeKiller.tagEnvironment(processBuilder.environment());
             } catch (NotImplementedException e) {
-                // TODO SCHEDULING-986 : remove catch block when environment can be modified with runAsMe
+                // SCHEDULING-986 : remove catch block when environment can be modified with runAsMe
             }
 
             process = processBuilder.start();
@@ -108,9 +107,6 @@ public class ForkerTaskExecutor implements TaskExecutor {
         } finally {
             FileUtils.deleteQuietly(serializedContext);
 
-            outputSink.flush(); // TODO needed?
-            errorSink.flush();
-
             if (process != null) {
                 process.destroy();
             }
@@ -124,7 +120,7 @@ public class ForkerTaskExecutor implements TaskExecutor {
     private OSProcessBuilder createForkedProcess(TaskContext context, File serializedContext)
             throws Exception {
         OSProcessBuilder pb;
-        String nativeScriptPath = PASchedulerProperties.SCHEDULER_HOME.getValueAsString(); // TODO inject
+        String nativeScriptPath = context.getSchedulerHome();
         if (context.isRunAsUser()) {
             boolean workingDirCanBeWrittenByForked = workingDir.setWritable(true);
             if (!workingDirCanBeWrittenByForked) {
