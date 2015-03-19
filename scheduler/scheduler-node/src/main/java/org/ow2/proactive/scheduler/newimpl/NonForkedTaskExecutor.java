@@ -51,7 +51,6 @@ import org.ow2.proactive.scheduler.newimpl.utils.StopWatch;
 import org.ow2.proactive.scheduler.task.SchedulerVars;
 import org.ow2.proactive.scheduler.task.TaskLauncherInitializer;
 import org.ow2.proactive.scheduler.task.TaskResultImpl;
-import org.ow2.proactive.scheduler.task.script.ForkedScriptExecutableContainer;
 import org.ow2.proactive.scheduler.task.script.ScriptExecutableContainer;
 import org.ow2.proactive.scripting.Script;
 import org.ow2.proactive.scripting.ScriptHandler;
@@ -65,6 +64,7 @@ import org.ow2.proactive.scripting.TaskScript;
  * Responsible for:
  *  - running the different scripts
  *  - variable propagation
+ *  - replacement for variables/
  *  - getting the task result or user code exceptions
  */
 public class NonForkedTaskExecutor implements TaskExecutor {
@@ -111,13 +111,12 @@ public class NonForkedTaskExecutor implements TaskExecutor {
             scriptHandler.addBinding(MULTI_NODE_TASK_NODESET_BINDING_NAME, nodesUrls);
             scriptHandler.addBinding(MULTI_NODE_TASK_NODESURL_BINDING_NAME, nodesUrls);
 
-            replaceScriptParameters(container, thirdPartyCredentials, variables);
-
             StopWatch stopWatch = new StopWatch();
             TaskResultImpl taskResult;
             try {
                 stopWatch.start();
-                Serializable result = execute(container, output, error, scriptHandler);
+                Serializable result = execute(container, output, error, scriptHandler, thirdPartyCredentials,
+                        variables);
                 taskResult = new TaskResultImpl(container.getTaskId(), result, null, stopWatch.stop());
             } catch (Throwable e) {
                 e.printStackTrace(error);
@@ -193,13 +192,11 @@ public class NonForkedTaskExecutor implements TaskExecutor {
 
     private Map<String, Serializable> contextVariables(TaskLauncherInitializer initializer) {
         Map<String, Serializable> variables = new HashMap<String, Serializable>();
-        variables.put(SchedulerVars.PA_JOB_ID.toString(), initializer.getTaskId().getJobId()
-                .value());
+        variables.put(SchedulerVars.PA_JOB_ID.toString(), initializer.getTaskId().getJobId().value());
         variables.put(SchedulerVars.PA_JOB_NAME.toString(), initializer.getTaskId().getJobId()
                 .getReadableName());
         variables.put(SchedulerVars.PA_TASK_ID.toString(), initializer.getTaskId().value());
-        variables.put(SchedulerVars.PA_TASK_NAME.toString(), initializer.getTaskId()
-                .getReadableName());
+        variables.put(SchedulerVars.PA_TASK_NAME.toString(), initializer.getTaskId().getReadableName());
         variables.put(SchedulerVars.PA_TASK_ITERATION.toString(), initializer.getIterationIndex());
         variables.put(SchedulerVars.PA_TASK_REPLICATION.toString(), initializer.getReplicationIndex());
         return variables;
@@ -217,8 +214,8 @@ public class NonForkedTaskExecutor implements TaskExecutor {
         }
     }
 
-    private void replaceScriptParameters(TaskContext container, Map<String, String> thirdPartyCredentials,
-            Map<String, Serializable> variables) {
+    private void replaceScriptParameters(Script script, Map<String, String> thirdPartyCredentials,
+      Map<String, Serializable> variables) {
 
         Map<String, String> replacements = new HashMap<String, String>();
         for (Map.Entry<String, Serializable> variable : variables.entrySet()) {
@@ -230,45 +227,35 @@ public class NonForkedTaskExecutor implements TaskExecutor {
             replacements.put(CREDENTIALS_KEY_PREFIX + credentialEntry.getKey(), credentialEntry.getValue());
         }
 
-        // TODO should be done after script is executed (like if pre changes on replacement, should it be resolved after)
+        performReplacements(script, replacements);
+    }
 
-        Script<Serializable> taskScript; // TODO clean this, only script container is needed
-        if (container.getExecutableContainer() instanceof ScriptExecutableContainer) {
-            taskScript = ((ScriptExecutableContainer) container.getExecutableContainer()).getScript();
-        } else {
-            taskScript = ((ForkedScriptExecutableContainer) container.getExecutableContainer()).getScript();
-        }
-        Script[] scripts = new Script[] { container.getPreScript(), container.getPostScript(), taskScript,
-                container.getControlFlowScript() };
-
-        for (Script script : scripts) {
-            if (script != null) {
-                // TODO deal with java task
-                if ("java".equals(script.getEngineName())) {
-                    try {
-                        Map<String, Serializable> deserializedArgs = SerializationUtil
-                                .deserializeVariableMap((Map<String, byte[]>) script.getParameters()[0]);
-                        for (Map.Entry<String, Serializable> deserializedARg : deserializedArgs.entrySet()) {
-                            if (deserializedARg.getValue() instanceof String) {
-                                deserializedARg.setValue(replace((String) deserializedARg.getValue(),
-                                        replacements));
-                            }
+    private void performReplacements(Script script, Map<String, String> replacements) {
+        if (script != null) {
+            if ("java".equals(script.getEngineName())) {
+                try {
+                    Map<String, Serializable> deserializedArgs = SerializationUtil
+                            .deserializeVariableMap((Map<String, byte[]>) script.getParameters()[0]);
+                    for (Map.Entry<String, Serializable> deserializedARg : deserializedArgs.entrySet()) {
+                        if (deserializedARg.getValue() instanceof String) {
+                            deserializedARg.setValue(replace((String) deserializedARg.getValue(),
+                                    replacements));
                         }
-                        script.getParameters()[0] = new HashMap<String, byte[]>(
-                            SerializationUtil.serializeVariableMap(deserializedArgs));
-                    } catch (Exception e) {
-                        // silent failure here TODO
                     }
-                } else if ("native".equals(script.getEngineName())) { // to replace script arguments
-                    script.setScript(replace(script.getScript(), replacements));
-                } else {
-                    Serializable[] args = script.getParameters();
+                    script.getParameters()[0] = new HashMap<String, byte[]>(
+                        SerializationUtil.serializeVariableMap(deserializedArgs));
+                } catch (Exception e) {
+                    // silent failure here TODO
+                }
+            } else if ("native".equals(script.getEngineName())) { // to replace script arguments
+                script.setScript(replace(script.getScript(), replacements));
+            } else {
+                Serializable[] args = script.getParameters();
 
-                    if (args != null) {
-                        for (int i = 0; i < args.length; i++) {
-                            if (args[i] instanceof String) {
-                                args[i] = replace((String) args[i], replacements);
-                            }
+                if (args != null) {
+                    for (int i = 0; i < args.length; i++) {
+                        if (args[i] instanceof String) {
+                            args[i] = replace((String) args[i], replacements);
                         }
                     }
                 }
@@ -285,35 +272,19 @@ public class NonForkedTaskExecutor implements TaskExecutor {
     }
 
     private Serializable execute(TaskContext container, PrintStream output, PrintStream error,
-            ScriptHandler scriptHandler) throws Exception {
+            ScriptHandler scriptHandler, Map<String, String> thirdPartyCredentials,
+            Map<String, Serializable> variables) throws Exception {
         if (container.getPreScript() != null) {
+            replaceScriptParameters(container.getPreScript(), thirdPartyCredentials, variables);
             ScriptResult preScriptResult = scriptHandler.handle(container.getPreScript(), output, error);
             if (preScriptResult.errorOccured()) {
                 throw new Exception("Failed to execute pre script", preScriptResult.getException());
             }
         }
 
-        Serializable scriptResult = executeTask(container, output, error, scriptHandler);
-
-        if (container.getPostScript() != null) {
-            ScriptResult postScriptResult = scriptHandler.handle(container.getPostScript(), output, error);
-            if (postScriptResult.errorOccured()) {
-                throw new Exception("Failed to execute post script", postScriptResult.getException());
-            }
-        }
-        return scriptResult;
-    }
-
-    protected Serializable executeTask(TaskContext container, PrintStream output, PrintStream error,
-            ScriptHandler scriptHandler) throws Exception {
-
-        Script<Serializable> script;
-        if (container.getExecutableContainer() instanceof ScriptExecutableContainer) {
-            script = ((ScriptExecutableContainer) container.getExecutableContainer()).getScript();
-        } else {
-            script = ((ForkedScriptExecutableContainer) container.getExecutableContainer()).getScript();
-        }
-
+        Script<Serializable> script = ((ScriptExecutableContainer) container.getExecutableContainer())
+                .getScript();
+        replaceScriptParameters(script, thirdPartyCredentials, variables);
         ScriptResult<Serializable> scriptResult = scriptHandler.handle(script, output, error);
 
         if (scriptResult.errorOccured()) {
@@ -321,6 +292,13 @@ public class NonForkedTaskExecutor implements TaskExecutor {
                 scriptResult.getException());
         }
 
+        if (container.getPostScript() != null) {
+            replaceScriptParameters(container.getPostScript(), thirdPartyCredentials, variables);
+            ScriptResult postScriptResult = scriptHandler.handle(container.getPostScript(), output, error);
+            if (postScriptResult.errorOccured()) {
+                throw new Exception("Failed to execute post script", postScriptResult.getException());
+            }
+        }
         return scriptResult.getResult();
     }
 

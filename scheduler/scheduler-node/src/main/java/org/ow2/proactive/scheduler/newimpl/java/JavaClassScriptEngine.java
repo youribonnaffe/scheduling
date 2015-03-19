@@ -64,7 +64,7 @@ import org.apache.commons.io.output.WriterOutputStream;
 import static java.util.Collections.emptyList;
 
 
-public class JavaScriptEngine extends AbstractScriptEngine {
+public class JavaClassScriptEngine extends AbstractScriptEngine {
 
     @Override
     public Object eval(String userExecutableClassName, ScriptContext context) throws ScriptException {
@@ -83,7 +83,7 @@ public class JavaScriptEngine extends AbstractScriptEngine {
                 propagatedVariables = SerializationUtil
                         .serializeVariableMap((Map<String, Serializable>) context.getAttribute(
                           NonForkedTaskExecutor.VARIABLES_BINDING_NAME));
-                execInitializer.setPropagatedVariables(propagatedVariables); // TODO how to modify those? for propagation
+                execInitializer.setPropagatedVariables(propagatedVariables);
             } else {
                 execInitializer.setPropagatedVariables(Collections.<String, byte[]> emptyMap());
             }
@@ -167,6 +167,6 @@ public class JavaScriptEngine extends AbstractScriptEngine {
 
     @Override
     public ScriptEngineFactory getFactory() {
-        return new JavaScriptEngineFactory();
+        return new JavaClassScriptEngineFactory();
     }
 }

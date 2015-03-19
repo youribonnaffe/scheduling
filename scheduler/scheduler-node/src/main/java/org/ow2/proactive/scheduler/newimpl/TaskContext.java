@@ -48,6 +48,7 @@ import org.ow2.proactive.scheduler.newimpl.utils.Decrypter;
 import org.ow2.proactive.scheduler.task.ExecutableContainer;
 import org.ow2.proactive.scheduler.task.TaskLauncherInitializer;
 import org.ow2.proactive.scripting.Script;
+import org.ow2.proactive.utils.ClasspathUtils;
 
 
 public class TaskContext implements Serializable {
@@ -68,22 +69,17 @@ public class TaskContext implements Serializable {
 
     public TaskContext(ExecutableContainer executableContainer, TaskLauncherInitializer initializer) throws
       NodeException {
-        this(executableContainer, initializer, null, "", "", "", "","", "");
+        this(executableContainer, initializer, null, "", "", "", "","");
     }
 
     public TaskContext(ExecutableContainer executableContainer,
             TaskLauncherInitializer initializer, TaskResult[] previousTasksResults) throws NodeException {
-        this(executableContainer, initializer, previousTasksResults, "", "", "", "","", "");
-    }
-
-    public TaskContext(ExecutableContainer executableContainer,
-      TaskLauncherInitializer initializer, String schedulerHome) throws NodeException {
-        this(executableContainer, initializer, null, "", "", "", "","", schedulerHome);
+        this(executableContainer, initializer, previousTasksResults, "", "", "", "","");
     }
 
     public TaskContext(ExecutableContainer executableContainer, TaskLauncherInitializer initializer,
             TaskResult[] previousTasksResults, String scratchURI, String inputURI, String outputURI,
-            String userURI, String globalURI, String schedulerHome) throws NodeException {
+            String userURI, String globalURI) throws NodeException {
         this.initializer = initializer; // copy?
         this.previousTasksResults = previousTasksResults;
         this.scratchURI = scratchURI;
@@ -91,7 +87,7 @@ public class TaskContext implements Serializable {
         this.outputURI = outputURI;
         this.userURI = userURI;
         this.globalURI = globalURI;
-        this.schedulerHome = schedulerHome;
+        this.schedulerHome = ClasspathUtils.findSchedulerHome();
         initializer.setNamingService(null);
         this.executableContainer = executableContainer;
 

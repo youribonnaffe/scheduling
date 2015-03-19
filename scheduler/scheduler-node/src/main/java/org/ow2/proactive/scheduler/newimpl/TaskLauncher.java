@@ -50,11 +50,11 @@ import org.objectweb.proactive.extensions.annotation.ActiveObject;
 import org.ow2.proactive.scheduler.common.TaskTerminateNotification;
 import org.ow2.proactive.scheduler.common.exception.TaskAbortedException;
 import org.ow2.proactive.scheduler.common.exception.WalltimeExceededException;
-import org.ow2.proactive.scheduler.newimpl.utils.Decrypter;
 import org.ow2.proactive.scheduler.common.task.TaskId;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
 import org.ow2.proactive.scheduler.common.util.logforwarder.AppenderProvider;
 import org.ow2.proactive.scheduler.newimpl.data.TaskDataspaces;
+import org.ow2.proactive.scheduler.newimpl.utils.Decrypter;
 import org.ow2.proactive.scheduler.newimpl.utils.StopWatch;
 import org.ow2.proactive.scheduler.newimpl.utils.TaskKiller;
 import org.ow2.proactive.scheduler.newimpl.utils.WallTimer;
@@ -62,7 +62,6 @@ import org.ow2.proactive.scheduler.task.ExecutableContainer;
 import org.ow2.proactive.scheduler.task.TaskLauncherInitializer;
 import org.ow2.proactive.scheduler.task.TaskResultImpl;
 import org.ow2.proactive.scheduler.task.script.ForkedScriptExecutableContainer;
-import org.ow2.proactive.utils.ClasspathUtils;
 import org.apache.log4j.Logger;
 
 
@@ -118,7 +117,7 @@ public class TaskLauncher {
 
             TaskContext context = new TaskContext(executableContainer, initializer, previousTasksResults,
                 dataspaces.getScratchURI(), dataspaces.getInputURI(), dataspaces.getOutputURI(),
-                dataspaces.getUserURI(), dataspaces.getGlobalURI(), ClasspathUtils.findSchedulerHome());
+                dataspaces.getUserURI(), dataspaces.getGlobalURI());
 
             if (decrypter != null) {
                 decrypter.setCredentials(executableContainer.getCredentials());
@@ -174,7 +173,7 @@ public class TaskLauncher {
                     stopWatchWhenTaskFailed.stop());
 
             } else {
-                logger.info("Failed to execute task", taskFailure);// TODO level?
+                logger.info("Failed to execute task", taskFailure);
                 taskFailure.printStackTrace(taskLogger.getErrorSink());
                 failedTaskResult = new TaskResultImpl(taskId, taskFailure, taskLogger.getLogs(),
                     stopWatchWhenTaskFailed.stop());
