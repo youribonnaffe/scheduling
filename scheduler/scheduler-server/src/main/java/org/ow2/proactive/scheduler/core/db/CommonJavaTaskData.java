@@ -18,7 +18,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 
 import org.ow2.proactive.scheduler.common.task.util.ByteArrayWrapper;
-import org.ow2.proactive.scheduler.task.java.JavaExecutableContainer;
+import org.ow2.proactive.scheduler.task.script.ScriptExecutableContainer;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.Parameter;
@@ -37,7 +37,7 @@ public class CommonJavaTaskData implements Serializable {
 
     private String userExecutableClassName;
 
-    protected void initProperties(TaskData taskData, JavaExecutableContainer container) {
+    protected void initProperties(TaskData taskData, ScriptExecutableContainer container) {
         setTaskData(taskData);
 
         Map<String, ByteArrayWrapper> args = container.getSerializedArguments();

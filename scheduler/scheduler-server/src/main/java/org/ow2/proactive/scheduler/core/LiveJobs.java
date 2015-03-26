@@ -33,7 +33,7 @@ import org.ow2.proactive.scheduler.job.ChangedTasksInfo;
 import org.ow2.proactive.scheduler.job.ClientJobState;
 import org.ow2.proactive.scheduler.job.InternalJob;
 import org.ow2.proactive.scheduler.job.JobInfoImpl;
-import org.ow2.proactive.scheduler.newimpl.TaskLauncher;
+import org.ow2.proactive.scheduler.task.TaskLauncher;
 import org.ow2.proactive.scheduler.task.TaskInfoImpl;
 import org.ow2.proactive.scheduler.task.TaskResultImpl;
 import org.ow2.proactive.scheduler.task.internal.InternalTask;
@@ -203,12 +203,10 @@ class LiveJobs {
         }
     }
 
-    void jobSubmitted(InternalJob job, SchedulerClassServers classServers,
-            SchedulerSpacesSupport spacesSupport) {
+    void jobSubmitted(InternalJob job, SchedulerSpacesSupport spacesSupport) {
         job.prepareTasks();
         job.submitAction();
         dbManager.newJobSubmitted(job);
-        classServers.createTaskClassServer(job, spacesSupport);
         ClientJobState clientJobState = new ClientJobState(job);
         jobs.put(job.getId(), new JobData(job));
         listener.jobSubmitted(clientJobState);
