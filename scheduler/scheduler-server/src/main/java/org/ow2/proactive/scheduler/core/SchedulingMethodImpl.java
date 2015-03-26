@@ -68,10 +68,9 @@ import org.ow2.proactive.scheduler.descriptor.EligibleTaskDescriptorImpl;
 import org.ow2.proactive.scheduler.descriptor.JobDescriptor;
 import org.ow2.proactive.scheduler.descriptor.TaskDescriptor;
 import org.ow2.proactive.scheduler.job.InternalJob;
-import org.ow2.proactive.scheduler.newimpl.TaskLauncher;
+import org.ow2.proactive.scheduler.task.TaskLauncher;
 import org.ow2.proactive.scheduler.policy.Policy;
 import org.ow2.proactive.scheduler.task.ExecutableContainer;
-import org.ow2.proactive.scheduler.task.ExecutableContainerInitializer;
 import org.ow2.proactive.scheduler.task.internal.InternalTask;
 import org.ow2.proactive.scheduler.util.JobLogger;
 import org.ow2.proactive.scheduler.util.TaskLogger;
@@ -432,11 +431,6 @@ public final class SchedulingMethodImpl implements SchedulingMethod {
         tlogger.debug(task.getId(), "initializing the executable container");
         ExecutableContainer container = getDBManager().loadExecutableContainer(task);
         task.setExecutableContainer(container);
-
-        ExecutableContainerInitializer eci = new ExecutableContainerInitializer();
-        // TCS can be null for non-java task
-        SchedulerClassServers classServers = schedulingService.getInfrastructure().getTaskClassServer();
-        eci.setClassServer(classServers.getTaskClassServer(task.getJobId()));
     }
 
     /**

@@ -29,29 +29,62 @@
  *
  *  Initial developer(s):               The ProActive Team
  *                        http://proactive.inria.fr/team_members.htm
- *  Contributor(s):
+ *  Contributor(s): ActiveEon Team - http://www.activeeon.com
  *
  * ################################################################
- * $ACTIVEEON_INITIAL_DEV$
+ * $$ACTIVEEON_CONTRIBUTOR$$
  */
-package org.ow2.proactive.scheduler.exception;
+package org.ow2.proactive.scheduler.task.utils;
 
-/**
- * ForkedJVMProcessException is thrown when forkedJavaProcess is not responding anymore.
- *
- * @author The ProActive Team
- * @since ProActive Scheduling 3.0
- */
-public class ForkedJVMProcessException extends RuntimeException {
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintStream;
+
+
+/** Pipe between two streams */
+public class ThreadReader implements Runnable {
+    private BufferedReader in;
+    private PrintStream out;
 
     /**
-     * Create a new instance of ForkedJVMProcessException
+     * Create a new instance of ThreadReader.
      *
-     * @param msg the message that causes the exception
-     * @param cause the optionnal cause of the exception
+     * @param in input stream.
+     * @param out output stream
+     * @param executable Executable that is concerned by the read.
      */
-    public ForkedJVMProcessException(String msg, Throwable cause) {
-        super(msg, cause);
+    public ThreadReader(BufferedReader in, PrintStream out) {
+        this.in = in;
+        this.out = out;
     }
 
+    /**
+     * @see java.lang.Runnable#run()
+     */
+    public void run() {
+        Thread readerThread = new Thread() {
+            @Override
+            public void run() {
+                String str = null;
+                try {
+                    while ((str = in.readLine()) != null) {
+                        out.println(str);
+                    }
+                } catch (IOException e) {
+                    //nothing to do, socket is dead
+                }
+            }
+        };
+        readerThread.setDaemon(true);
+        readerThread.start();
+
+        while (readerThread.isAlive()) {
+            try {
+                readerThread.join(1000);
+            } catch (InterruptedException e) {
+                break;
+            }
+        }
+
+    }
 }

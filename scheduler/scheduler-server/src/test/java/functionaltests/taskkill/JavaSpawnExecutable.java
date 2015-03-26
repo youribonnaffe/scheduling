@@ -35,18 +35,14 @@
 package functionaltests.taskkill;
 
 import org.apache.log4j.Level;
-
 import org.ow2.proactive.process_tree_killer.ProcessTree;
 import org.ow2.proactive.rm.util.process.OperatingSystem;
 import org.ow2.proactive.rm.util.process.OperatingSystemFamily;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
 import org.ow2.proactive.scheduler.common.task.executable.JavaExecutable;
-import org.ow2.proactive.scheduler.newimpl.utils.ThreadReader;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Serializable;
+import org.ow2.proactive.scheduler.task.utils.ThreadReader;
+
+import java.io.*;
 import java.net.URISyntaxException;
 import java.util.Map;
 

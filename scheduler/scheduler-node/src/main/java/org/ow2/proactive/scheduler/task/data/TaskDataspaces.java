@@ -1,11 +1,10 @@
 /*
- * ################################################################
- *
+ *  *
  * ProActive Parallel Suite(TM): The Java(TM) library for
  *    Parallel, Distributed, Multi-Core Computing for
  *    Enterprise Grids & Clouds
  *
- * Copyright (C) 1997-2011 INRIA/University of
+ * Copyright (C) 1997-2014 INRIA/University of
  *                 Nice-Sophia Antipolis/ActiveEon
  * Contact: proactive@ow2.org or contact@activeeon.com
  *
@@ -31,27 +30,35 @@
  *                        http://proactive.inria.fr/team_members.htm
  *  Contributor(s):
  *
- * ################################################################
- * $ACTIVEEON_INITIAL_DEV$
+ *  * $$ACTIVEEON_INITIAL_DEV$$
  */
-package org.ow2.proactive.scheduler.exception;
+package org.ow2.proactive.scheduler.task.data;
 
-/**
- * ForkedJVMProcessException is thrown when forkedJavaProcess is not responding anymore.
- *
- * @author The ProActive Team
- * @since ProActive Scheduling 3.0
- */
-public class ForkedJVMProcessException extends RuntimeException {
+import java.io.File;
+import java.io.Serializable;
+import java.util.List;
 
-    /**
-     * Create a new instance of ForkedJVMProcessException
-     *
-     * @param msg the message that causes the exception
-     * @param cause the optionnal cause of the exception
-     */
-    public ForkedJVMProcessException(String msg, Throwable cause) {
-        super(msg, cause);
-    }
+import org.objectweb.proactive.extensions.dataspaces.exceptions.FileSystemException;
+import org.ow2.proactive.scheduler.common.task.dataspaces.InputSelector;
+import org.ow2.proactive.scheduler.common.task.dataspaces.OutputSelector;
+
+
+public interface TaskDataspaces extends Serializable {
+
+    File getScratchFolder();
+
+    String getScratchURI();
+
+    String getInputURI();
+
+    String getOutputURI();
+
+    String getUserURI();
+
+    String getGlobalURI();
+
+    void copyInputDataToScratch(List<InputSelector> inputFiles) throws FileSystemException;
+
+    void copyScratchDataToOutput(List<OutputSelector> outputFiles) throws FileSystemException;
 
 }
