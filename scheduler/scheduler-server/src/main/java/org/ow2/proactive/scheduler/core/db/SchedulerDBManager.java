@@ -647,8 +647,7 @@ public class SchedulerDBManager {
         session
                 .createQuery(
                         "delete from ScriptData where"
-                            + " id in (select td.envScript from ForkedJavaTaskData td where td.taskData.id.jobId = :jobId)"
-                            + " or id in (select preScript from TaskData where id.jobId = :jobId)"
+                            + " id in (select preScript from TaskData where id.jobId = :jobId)"
                             + " or id in (select postScript from TaskData where id.jobId = :jobId)"
                             + " or id in (select cleanScript from TaskData where id.jobId = :jobId)"
                             + " or id in (select flowScript from TaskData where id.jobId = :jobId)"
@@ -659,8 +658,6 @@ public class SchedulerDBManager {
     private void removeJobRuntimeData(Session session, long jobId) {
         removeJobScripts(session, jobId);
 
-        session.createQuery("delete from ForkedJavaTaskData where taskData.id.jobId = :jobId").setParameter(
-                "jobId", jobId).executeUpdate();
         session.createQuery("delete from ScriptTaskData where taskData.id.jobId = :jobId").setParameter(
                 "jobId", jobId).executeUpdate();
 
