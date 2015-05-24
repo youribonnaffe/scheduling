@@ -277,7 +277,7 @@ public class TaskLauncherInitializer implements Serializable {
      *
      * @return the taskInputFiles
      */
-    public List<InputSelector> getFilteredInputFiles() {
+    public List<InputSelector> getTaskInputFiles() {
         return taskInputFiles;
     }
 
@@ -403,7 +403,7 @@ public class TaskLauncherInitializer implements Serializable {
         return filteredTaskInputFiles;
     }
 
-    public List<OutputSelector> getFilteredTaskOutputFiles(Map<String, Serializable> variables) {
+    public List<OutputSelector> getFilteredOutputFiles(Map<String, Serializable> variables) {
         List<OutputSelector> filteredTaskOutputFiles = new ArrayList<>();
         if (taskOutputFiles != null) {
 

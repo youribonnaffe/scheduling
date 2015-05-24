@@ -147,7 +147,7 @@ public class NonForkedTaskExecutor implements TaskExecutor {
     }
 
     static Map<String, Serializable> taskVariables(TaskContext container) throws Exception {
-        Map<String, Serializable> variables = new HashMap<String, Serializable>();
+        Map<String, Serializable> variables = new HashMap<>();
 
         // variables from workflow definition
         if (container.getInitializer().getVariables() != null) {
@@ -190,7 +190,7 @@ public class NonForkedTaskExecutor implements TaskExecutor {
     }
 
     static Map<String, Serializable> contextVariables(TaskLauncherInitializer initializer) {
-        Map<String, Serializable> variables = new HashMap<String, Serializable>();
+        Map<String, Serializable> variables = new HashMap<>();
         variables.put(SchedulerVars.PA_JOB_ID.toString(), initializer.getTaskId().getJobId().value());
         variables.put(SchedulerVars.PA_JOB_NAME.toString(), initializer.getTaskId().getJobId()
                 .getReadableName());
@@ -203,7 +203,7 @@ public class NonForkedTaskExecutor implements TaskExecutor {
 
     static Map<String, String> thirdPartyCredentials(TaskContext container) throws Exception {
         try {
-            Map<String, String> thirdPartyCredentials = new HashMap<String, String>();
+            Map<String, String> thirdPartyCredentials = new HashMap<>();
             if (container.getDecrypter() != null) {
                 thirdPartyCredentials.putAll(container.getDecrypter().decrypt().getThirdPartyCredentials());
             }
@@ -228,9 +228,11 @@ public class NonForkedTaskExecutor implements TaskExecutor {
     // TODO to extract
     public static Map<String, String> buildReplacements(Map<String, Serializable> variables) {
         Map<String, String> replacements = new HashMap<>();
-        for (Map.Entry<String, Serializable> variable : variables.entrySet()) {
-            replacements.put("$" + variable.getKey(), variable.getValue().toString());
-            replacements.put("${" + variable.getKey() + "}", variable.getValue().toString());
+        if (variables != null) {
+            for (Map.Entry<String, Serializable> variable : variables.entrySet()) {
+                replacements.put("$" + variable.getKey(), variable.getValue().toString());
+                replacements.put("${" + variable.getKey() + "}", variable.getValue().toString());
+            }
         }
         return replacements;
     }

@@ -122,7 +122,7 @@ public class TaskLauncher {
 
             File taskLogFile = taskLogger.createFileAppender(dataspaces.getScratchFolder());
 
-            dataspaces.copyInputDataToScratch(initializer.getFilteredInputFiles(dataspaceReplacements(initializer))); // should handle interrupt
+            dataspaces.copyInputDataToScratch(initializer.getFilteredInputFiles(fileSelectorsFilters(initializer))); // should handle interrupt
 
             File workingDir = getTaskWorkingDir(executableContainer, dataspaces);
 
@@ -165,7 +165,7 @@ public class TaskLauncher {
                 return;
             }
 
-            dataspaces.copyScratchDataToOutput(initializer.getFilteredTaskOutputFiles(dataspaceReplacements(initializer)));
+            dataspaces.copyScratchDataToOutput(initializer.getFilteredOutputFiles(fileSelectorsFilters(initializer)));
 
             copyTaskLogsToUserSpace(taskLogFile, dataspaces);
             FileUtils.deleteQuietly(taskLogFile);
@@ -207,7 +207,7 @@ public class TaskLauncher {
         }
     }
 
-    private HashMap<String, Serializable> dataspaceReplacements(TaskLauncherInitializer initializer) {
+    private HashMap<String, Serializable> fileSelectorsFilters(TaskLauncherInitializer initializer) {
         HashMap<String, Serializable> replacements = new HashMap<>();
 
         replacements.put(SchedulerVars.PA_JOB_ID.toString(), initializer.getTaskId().getJobId().value());
