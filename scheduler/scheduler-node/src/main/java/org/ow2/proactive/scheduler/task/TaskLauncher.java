@@ -60,8 +60,10 @@ import org.ow2.proactive.scheduler.task.utils.TaskKiller;
 import org.ow2.proactive.scheduler.task.utils.WallTimer;
 
 import java.io.File;
+import java.io.Serializable;
 import java.security.*;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 
@@ -120,7 +122,7 @@ public class TaskLauncher {
 
             File taskLogFile = taskLogger.createFileAppender(dataspaces.getScratchFolder());
 
-            dataspaces.copyInputDataToScratch(initializer.getTaskInputFiles()); // should handle interrupt
+            dataspaces.copyInputDataToScratch(initializer.getFilteredInputFiles(dataspaceReplacements(initializer))); // should handle interrupt
 
             File workingDir = getTaskWorkingDir(executableContainer, dataspaces);
 
@@ -163,7 +165,7 @@ public class TaskLauncher {
                 return;
             }
 
-            dataspaces.copyScratchDataToOutput(initializer.getTaskOutputFiles());
+            dataspaces.copyScratchDataToOutput(initializer.getFilteredTaskOutputFiles(dataspaceReplacements(initializer)));
 
             copyTaskLogsToUserSpace(taskLogFile, dataspaces);
             FileUtils.deleteQuietly(taskLogFile);
@@ -203,6 +205,20 @@ public class TaskLauncher {
         } finally {
             taskLogger.close();
         }
+    }
+
+    private HashMap<String, Serializable> dataspaceReplacements(TaskLauncherInitializer initializer) {
+        HashMap<String, Serializable> replacements = new HashMap<>();
+
+        replacements.put(SchedulerVars.PA_JOB_ID.toString(), initializer.getTaskId().getJobId().value());
+        replacements.put(SchedulerVars.PA_JOB_NAME.toString(), initializer.getTaskId().getJobId()
+                .getReadableName());
+        replacements.put(SchedulerVars.PA_TASK_ID.toString(), initializer.getTaskId().value());
+        replacements.put(SchedulerVars.PA_TASK_NAME.toString(), initializer.getTaskId().getReadableName());
+        replacements.put(SchedulerVars.PA_TASK_ITERATION.toString(), Integer.toString(initializer.getIterationIndex()));
+        replacements.put(SchedulerVars.PA_TASK_REPLICATION.toString(), Integer.toString(initializer.getReplicationIndex()));
+
+        return replacements;
     }
 
     private void copyTaskLogsToUserSpace(File taskLogFile, TaskDataspaces dataspaces) {

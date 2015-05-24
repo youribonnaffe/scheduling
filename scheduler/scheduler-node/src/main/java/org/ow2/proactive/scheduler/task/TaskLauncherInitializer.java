@@ -36,16 +36,17 @@
  */
 package org.ow2.proactive.scheduler.task;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
 import org.objectweb.proactive.extensions.dataspaces.core.naming.NamingService;
 import org.ow2.proactive.scheduler.common.task.TaskId;
 import org.ow2.proactive.scheduler.common.task.dataspaces.InputSelector;
 import org.ow2.proactive.scheduler.common.task.dataspaces.OutputSelector;
 import org.ow2.proactive.scheduler.common.task.flow.FlowScript;
 import org.ow2.proactive.scripting.Script;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -276,7 +277,7 @@ public class TaskLauncherInitializer implements Serializable {
      *
      * @return the taskInputFiles
      */
-    public List<InputSelector> getTaskInputFiles() {
+    public List<InputSelector> getFilteredInputFiles() {
         return taskInputFiles;
     }
 
@@ -371,5 +372,63 @@ public class TaskLauncherInitializer implements Serializable {
 
     public int getPingAttempts() {
         return pingAttempts;
+    }
+
+    public List<InputSelector> getFilteredInputFiles(Map<String, Serializable> variables) {
+        List<InputSelector> filteredTaskInputFiles = new ArrayList<>();
+        if (taskInputFiles != null) {
+
+            Map<String, String> replacements = NonForkedTaskExecutor.buildReplacements(variables);
+            for (InputSelector is : taskInputFiles) {
+                InputSelector filteredInputSelector = new InputSelector(is.getInputFiles(), is.getMode());
+                String[] inc = filteredInputSelector.getInputFiles().getIncludes();
+                String[] exc = filteredInputSelector.getInputFiles().getExcludes();
+
+                if (inc != null) {
+                    for (int i = 0; i < inc.length; i++) {
+                        inc[i] = NonForkedTaskExecutor.replace(inc[i], replacements);
+                    }
+                }
+                if (exc != null) {
+                    for (int i = 0; i < exc.length; i++) {
+                        exc[i] = NonForkedTaskExecutor.replace(exc[i], replacements);
+                    }
+                }
+
+                filteredInputSelector.getInputFiles().setIncludes(inc);
+                filteredInputSelector.getInputFiles().setExcludes(exc);
+                filteredTaskInputFiles.add(filteredInputSelector);
+            }
+        }
+        return filteredTaskInputFiles;
+    }
+
+    public List<OutputSelector> getFilteredTaskOutputFiles(Map<String, Serializable> variables) {
+        List<OutputSelector> filteredTaskOutputFiles = new ArrayList<>();
+        if (taskOutputFiles != null) {
+
+            Map<String, String> replacements = NonForkedTaskExecutor.buildReplacements(variables);
+            for (OutputSelector is : taskOutputFiles) {
+                OutputSelector filteredOutputSelector = new OutputSelector(is.getOutputFiles(), is.getMode());
+                String[] inc = filteredOutputSelector.getOutputFiles().getIncludes();
+                String[] exc = filteredOutputSelector.getOutputFiles().getExcludes();
+
+                if (inc != null) {
+                    for (int i = 0; i < inc.length; i++) {
+                        inc[i] = NonForkedTaskExecutor.replace(inc[i], replacements);
+                    }
+                }
+                if (exc != null) {
+                    for (int i = 0; i < exc.length; i++) {
+                        exc[i] = NonForkedTaskExecutor.replace(exc[i], replacements);
+                    }
+                }
+
+                filteredOutputSelector.getOutputFiles().setIncludes(inc);
+                filteredOutputSelector.getOutputFiles().setExcludes(exc);
+                filteredTaskOutputFiles.add(filteredOutputSelector);
+            }
+        }
+        return filteredTaskOutputFiles;
     }
 }
