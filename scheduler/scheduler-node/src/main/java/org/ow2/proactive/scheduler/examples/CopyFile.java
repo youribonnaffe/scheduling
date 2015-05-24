@@ -34,14 +34,13 @@
  */
 package org.ow2.proactive.scheduler.examples;
 
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSelectInfo;
-import org.apache.commons.vfs2.Selectors;
-import org.objectweb.proactive.extensions.dataspaces.api.FileSelector;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.vfs2.*;
 import org.objectweb.proactive.extensions.dataspaces.vfs.adapter.VFSFileObjectAdapter;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
 import org.ow2.proactive.scheduler.common.task.executable.JavaExecutable;
 
+import java.io.File;
 import java.io.Serializable;
 
 
@@ -59,9 +58,10 @@ public class CopyFile extends JavaExecutable {
 
     @Override
     public Serializable execute(TaskResult... results) throws Throwable {
+        FileSystemManager manager = VFS.getManager();
         if (inputFile.contains("*")) {
             inputFile = inputFile.replace("*", ".*").replace("?", ".");
-            FileObject space = ((VFSFileObjectAdapter) getLocalSpace()).getAdaptee();
+            FileObject space = manager.resolveFile("file:.");
 
             FileObject[] lfo = space.findFiles(new org.apache.commons.vfs2.FileSelector() {
                 @Override
@@ -86,9 +86,7 @@ public class CopyFile extends JavaExecutable {
             getOut().println("Copied " + lfo[0].getURL() + " to  " +
                 super.getLocalFile(outputFile).getRealURI());
         } else {
-            super.getLocalFile(outputFile).copyFrom(super.getLocalFile(inputFile), FileSelector.SELECT_SELF);
-            getOut().println("Copied " + super.getLocalFile(inputFile).getRealURI() + " to  " +
-                super.getLocalFile(outputFile).getRealURI());
+            FileUtils.copyFile(new File(inputFile), new File(outputFile));
         }
 
         return true;

@@ -216,17 +216,23 @@ public class NonForkedTaskExecutor implements TaskExecutor {
     static void replaceScriptParameters(Script script, Map<String, String> thirdPartyCredentials,
       Map<String, Serializable> variables) {
 
-        Map<String, String> replacements = new HashMap<String, String>();
-        for (Map.Entry<String, Serializable> variable : variables.entrySet()) {
-            replacements.put("$" + variable.getKey(), variable.getValue().toString());
-            replacements.put("${" + variable.getKey() + "}", variable.getValue().toString());
-        }
+        Map<String, String> replacements = buildReplacements(variables);
 
         for (Map.Entry<String, String> credentialEntry : thirdPartyCredentials.entrySet()) {
             replacements.put(CREDENTIALS_KEY_PREFIX + credentialEntry.getKey(), credentialEntry.getValue());
         }
 
         performReplacements(script, replacements);
+    }
+
+    // TODO to extract
+    public static Map<String, String> buildReplacements(Map<String, Serializable> variables) {
+        Map<String, String> replacements = new HashMap<>();
+        for (Map.Entry<String, Serializable> variable : variables.entrySet()) {
+            replacements.put("$" + variable.getKey(), variable.getValue().toString());
+            replacements.put("${" + variable.getKey() + "}", variable.getValue().toString());
+        }
+        return replacements;
     }
 
     static void performReplacements(Script script, Map<String, String> replacements) {
@@ -241,8 +247,8 @@ public class NonForkedTaskExecutor implements TaskExecutor {
                               replace((String) deserializedArg.getValue(), replacements));
                         }
                     }
-                    script.getParameters()[0] = new HashMap<String, byte[]>(
-                        SerializationUtil.serializeVariableMap(deserializedArgs));
+                    script.getParameters()[0] = new HashMap<>(
+                            SerializationUtil.serializeVariableMap(deserializedArgs));
                 } catch (Exception e) {
                     System.err.println("Could read Java parameters");
                     e.printStackTrace(System.err);
@@ -263,7 +269,8 @@ public class NonForkedTaskExecutor implements TaskExecutor {
         }
     }
 
-    private static String replace(String input, Map<String, String> replacements) {
+    // TODO to extract
+    public static String replace(String input, Map<String, String> replacements) {
         String output = input;
         for (Map.Entry<String, String> replacement : replacements.entrySet()) {
             output = output.replace(replacement.getKey(), replacement.getValue());

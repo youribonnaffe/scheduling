@@ -1,10 +1,5 @@
 package org.ow2.proactive.scheduler.task;
 
-import java.io.File;
-import java.io.PrintStream;
-import java.util.List;
-import java.util.concurrent.Semaphore;
-
 import org.objectweb.proactive.extensions.dataspaces.core.naming.NamingService;
 import org.objectweb.proactive.extensions.dataspaces.exceptions.FileSystemException;
 import org.ow2.proactive.scheduler.common.task.TaskId;
@@ -12,6 +7,11 @@ import org.ow2.proactive.scheduler.common.task.dataspaces.InputSelector;
 import org.ow2.proactive.scheduler.common.task.dataspaces.OutputSelector;
 import org.ow2.proactive.scheduler.task.data.TaskDataspaces;
 import org.ow2.proactive.scheduler.task.utils.Decrypter;
+
+import java.io.File;
+import java.io.PrintStream;
+import java.util.List;
+import java.util.concurrent.Semaphore;
 
 public class TestTaskLauncherFactory extends ProActiveForkedTaskLauncherFactory {
     private Semaphore taskRunning;
@@ -44,6 +44,7 @@ public class TestTaskLauncherFactory extends ProActiveForkedTaskLauncherFactory 
 
     public static class TaskFileDataspaces implements TaskDataspaces {
 
+        // implement a fake one with files
         @Override
         public File getScratchFolder() {
             return new File(".");
@@ -76,7 +77,13 @@ public class TestTaskLauncherFactory extends ProActiveForkedTaskLauncherFactory 
 
         @Override
         public void copyInputDataToScratch(List<InputSelector> inputFiles) throws FileSystemException {
+            for (InputSelector inputFile : inputFiles) {
 
+                String[] includes = inputFile.getInputFiles().getIncludes();
+                for (String include : includes) {
+
+                }
+            }
         }
 
         @Override
