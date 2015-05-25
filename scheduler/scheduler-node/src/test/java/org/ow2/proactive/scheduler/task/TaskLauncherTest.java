@@ -12,9 +12,6 @@ import org.ow2.proactive.authentication.crypto.Credentials;
 import org.ow2.proactive.scheduler.common.TaskTerminateNotification;
 import org.ow2.proactive.scheduler.common.task.TaskId;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
-import org.ow2.proactive.scheduler.common.task.dataspaces.FileSelector;
-import org.ow2.proactive.scheduler.common.task.dataspaces.InputAccessMode;
-import org.ow2.proactive.scheduler.common.task.dataspaces.InputSelector;
 import org.ow2.proactive.scheduler.common.task.dataspaces.OutputSelector;
 import org.ow2.proactive.scheduler.common.util.Object2ByteConverter;
 import org.ow2.proactive.scheduler.examples.WaitAndPrint;
@@ -26,7 +23,6 @@ import org.ow2.proactive.scripting.TaskScript;
 
 import java.io.InputStreamReader;
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -206,23 +202,6 @@ public class TaskLauncherTest {
         for (int i=1; i<=result.size(); i++) {
             assertEquals(i * (100 / nbIterations), result.get(i-1));
         }
-    }
-
-    @Test
-    public void inputFiles() throws Throwable {
-        ForkedScriptExecutableContainer executableContainer = new ForkedScriptExecutableContainer(
-                new TaskScript(new SimpleScript("println new File('.').listFiles()'", "groovy")));
-
-        TaskLauncherInitializer initializer = new TaskLauncherInitializer();
-
-        initializer.setTaskId(TaskIdImpl.createTaskId(JobIdImpl.makeJobId("1000"), "job", 1000L, false));
-        initializer.setTaskInputFiles(Collections.singletonList(new InputSelector(new FileSelector("test"), InputAccessMode.TransferFromInputSpace)));
-
-        TaskLauncher taskLauncher = new TaskLauncher(initializer, new TestTaskLauncherFactory());
-        TaskResult taskResult = runTaskLauncher(taskLauncher, executableContainer);
-
-        assertEquals("hello", taskResult.value());
-        assertEquals("prehellopost\n", taskResult.getOutput().getAllLogs(false));
     }
 
     private TaskResult runTaskLauncher(TaskLauncher taskLauncher, ForkedScriptExecutableContainer executableContainer) {

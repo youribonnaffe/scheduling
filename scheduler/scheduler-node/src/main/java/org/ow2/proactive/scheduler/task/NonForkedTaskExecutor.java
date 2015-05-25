@@ -60,10 +60,10 @@ import java.util.concurrent.TimeUnit;
 public class NonForkedTaskExecutor implements TaskExecutor {
 
     private static final String DS_SCRATCH_BINDING_NAME = "localspace";
-    private static final String DS_INPUT_BINDING_NAME = "input";
-    private static final String DS_OUTPUT_BINDING_NAME = "output";
-    private static final String DS_GLOBAL_BINDING_NAME = "global";
-    private static final String DS_USER_BINDING_NAME = "user";
+    private static final String DS_INPUT_BINDING_NAME = "inputspace";
+    private static final String DS_OUTPUT_BINDING_NAME = "outputspace";
+    private static final String DS_GLOBAL_BINDING_NAME = "globalspace";
+    private static final String DS_USER_BINDING_NAME = "userspace";
 
     private static final String MULTI_NODE_TASK_NODESET_BINDING_NAME = "nodeset";
     public static final String MULTI_NODE_TASK_NODESURL_BINDING_NAME = "nodesurl";
@@ -135,7 +135,7 @@ public class NonForkedTaskExecutor implements TaskExecutor {
     static String writeNodesFile(Set<String> nodesHosts) throws IOException {
         if (nodesHosts.isEmpty()) {
             return "";
-        } else {
+        } else { // TODO check why not deleted, check why it is there even if empty
             File nodesFiles = File.createTempFile("pa_nodes", null);
             FileWriter outputWriter = new FileWriter(nodesFiles);
             for (String nodeHost : nodesHosts) {

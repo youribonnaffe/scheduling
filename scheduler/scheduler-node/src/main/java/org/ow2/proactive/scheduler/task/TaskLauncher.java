@@ -112,7 +112,7 @@ public class TaskLauncher {
                        TaskTerminateNotification terminateNotification) {
 
         taskKiller = new TaskKiller(Thread.currentThread()); // what about kill of a non yet started task?
-        WallTimer wallTimer = WallTimer.startWalltime(initializer.getWalltime(),
+        WallTimer wallTimer = WallTimer.startWallTime(initializer.getWalltime(),
                 new TaskKiller(Thread.currentThread()));
 
         Stopwatch stopwatchWhenTaskFailed = Stopwatch.createStarted();
