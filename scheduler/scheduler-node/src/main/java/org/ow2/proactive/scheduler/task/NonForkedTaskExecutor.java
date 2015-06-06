@@ -35,6 +35,7 @@
 package org.ow2.proactive.scheduler.task;
 
 import com.google.common.base.Stopwatch;
+import org.apache.commons.io.FileUtils;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
 import org.ow2.proactive.scheduler.common.task.flow.FlowAction;
 import org.ow2.proactive.scheduler.common.task.flow.FlowScript;
@@ -52,10 +53,10 @@ import java.util.concurrent.TimeUnit;
 /**
  * Run a task through a script handler.
  * Responsible for:
- *  - running the different scripts
- *  - variable propagation
- *  - replacement for variables/
- *  - getting the task result or user code exceptions
+ * - running the different scripts
+ * - variable propagation
+ * - replacement for variables/
+ * - getting the task result or user code exceptions
  */
 public class NonForkedTaskExecutor implements TaskExecutor {
 
@@ -80,8 +81,9 @@ public class NonForkedTaskExecutor implements TaskExecutor {
     @Override
     public TaskResultImpl execute(TaskContext container, PrintStream output, PrintStream error) {
         ScriptHandler scriptHandler = ScriptLoader.createLocalHandler();
-
+        String nodesFile = null;
         try {
+            nodesFile = writeNodesFile(container.getNodesHosts());
             Map<String, Serializable> variables = taskVariables(container);
             Map<String, String> thirdPartyCredentials = thirdPartyCredentials(container);
             createBindings(container, scriptHandler, variables, thirdPartyCredentials);
@@ -110,6 +112,10 @@ public class NonForkedTaskExecutor implements TaskExecutor {
         } catch (Throwable e) {
             e.printStackTrace(error);
             return new TaskResultImpl(container.getTaskId(), e);
+        } finally {
+            if (nodesFile != null && !nodesFile.isEmpty()) {
+                FileUtils.deleteQuietly(new File(nodesFile));
+            }
         }
     }
 
@@ -135,8 +141,9 @@ public class NonForkedTaskExecutor implements TaskExecutor {
     static String writeNodesFile(Set<String> nodesHosts) throws IOException {
         if (nodesHosts.isEmpty()) {
             return "";
-        } else { // TODO check why not deleted, check why it is there even if empty
+        } else { // TODO should delete it, check why it is there even if empty
             File nodesFiles = File.createTempFile("pa_nodes", null);
+            nodesFiles.deleteOnExit();
             FileWriter outputWriter = new FileWriter(nodesFiles);
             for (String nodeHost : nodesHosts) {
                 outputWriter.append(nodeHost).append(System.getProperty("line.separator"));
@@ -171,7 +178,7 @@ public class NonForkedTaskExecutor implements TaskExecutor {
         // variables from current job/task context
         variables.putAll(contextVariables(container.getInitializer()));
 
-        variables.put(SchedulerVars.PA_NODESNUMBER.toString(), container.getNodesURLs().size());
+        variables.put(SchedulerVars.PA_NODESNUMBER.toString(), container.getNodesURLs().size() + 1);
         variables.put(SchedulerVars.PA_NODESFILE.toString(), writeNodesFile(container.getNodesHosts()));
 
         variables.put(SchedulerVars.PA_SCHEDULER_HOME.toString(), container.getSchedulerHome());
