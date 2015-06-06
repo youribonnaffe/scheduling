@@ -44,9 +44,7 @@ import org.ow2.proactive.scheduler.common.task.flow.FlowScript;
 import org.ow2.proactive.scripting.Script;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -381,26 +379,28 @@ public class TaskLauncherInitializer implements Serializable {
             Map<String, String> replacements = NonForkedTaskExecutor.buildReplacements(variables);
             for (InputSelector is : taskInputFiles) {
                 InputSelector filteredInputSelector = new InputSelector(is.getInputFiles(), is.getMode());
-                String[] inc = filteredInputSelector.getInputFiles().getIncludes();
-                String[] exc = filteredInputSelector.getInputFiles().getExcludes();
+                Set<String> includes = filteredInputSelector.getInputFiles().getIncludes();
+                Set<String> excludes = filteredInputSelector.getInputFiles().getExcludes();
 
-                if (inc != null) {
-                    for (int i = 0; i < inc.length; i++) {
-                        inc[i] = NonForkedTaskExecutor.replace(inc[i], replacements);
-                    }
-                }
-                if (exc != null) {
-                    for (int i = 0; i < exc.length; i++) {
-                        exc[i] = NonForkedTaskExecutor.replace(exc[i], replacements);
-                    }
-                }
+                Set<String> filteredIncludes = filteredSelector(includes, replacements);
+                Set<String> filteredExcludes = filteredSelector(excludes, replacements);
 
-                filteredInputSelector.getInputFiles().setIncludes(inc);
-                filteredInputSelector.getInputFiles().setExcludes(exc);
+                filteredInputSelector.getInputFiles().setIncludes(filteredIncludes);
+                filteredInputSelector.getInputFiles().setExcludes(filteredExcludes);
                 filteredTaskInputFiles.add(filteredInputSelector);
             }
         }
         return filteredTaskInputFiles;
+    }
+
+    private Set<String> filteredSelector(Set<String> selectors, Map<String, String> replacements) {
+        Set<String> filteredIncludes = new HashSet<>();
+        if (selectors != null) {
+            for (String include : selectors) {
+                filteredIncludes.add(NonForkedTaskExecutor.replace(include, replacements));
+            }
+        }
+        return filteredIncludes;
     }
 
     public List<OutputSelector> getFilteredOutputFiles(Map<String, Serializable> variables) {
@@ -410,22 +410,14 @@ public class TaskLauncherInitializer implements Serializable {
             Map<String, String> replacements = NonForkedTaskExecutor.buildReplacements(variables);
             for (OutputSelector is : taskOutputFiles) {
                 OutputSelector filteredOutputSelector = new OutputSelector(is.getOutputFiles(), is.getMode());
-                String[] inc = filteredOutputSelector.getOutputFiles().getIncludes();
-                String[] exc = filteredOutputSelector.getOutputFiles().getExcludes();
+                Set<String> includes = filteredOutputSelector.getOutputFiles().getIncludes();
+                Set<String> excludes = filteredOutputSelector.getOutputFiles().getExcludes();
 
-                if (inc != null) {
-                    for (int i = 0; i < inc.length; i++) {
-                        inc[i] = NonForkedTaskExecutor.replace(inc[i], replacements);
-                    }
-                }
-                if (exc != null) {
-                    for (int i = 0; i < exc.length; i++) {
-                        exc[i] = NonForkedTaskExecutor.replace(exc[i], replacements);
-                    }
-                }
+                Set<String> filteredIncludes = filteredSelector(includes, replacements);
+                Set<String> filteredExcludes = filteredSelector(excludes, replacements);
 
-                filteredOutputSelector.getOutputFiles().setIncludes(inc);
-                filteredOutputSelector.getOutputFiles().setExcludes(exc);
+                filteredOutputSelector.getOutputFiles().setIncludes(filteredIncludes);
+                filteredOutputSelector.getOutputFiles().setExcludes(filteredExcludes);
                 filteredTaskOutputFiles.add(filteredOutputSelector);
             }
         }

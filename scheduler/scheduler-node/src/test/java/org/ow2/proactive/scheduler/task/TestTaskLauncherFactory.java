@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 public class TestTaskLauncherFactory extends ProActiveForkedTaskLauncherFactory {
@@ -22,7 +23,7 @@ public class TestTaskLauncherFactory extends ProActiveForkedTaskLauncherFactory 
     private TaskFileDataspaces dataSpaces;
 
     public TestTaskLauncherFactory() {
-        this(new File("java.io.tmp"));
+        this(new File(System.getProperty("java.io.tmpdir")));
     }
 
     public TestTaskLauncherFactory(Semaphore taskRunning) {
@@ -120,7 +121,7 @@ public class TestTaskLauncherFactory extends ProActiveForkedTaskLauncherFactory 
         @Override
         public void copyInputDataToScratch(List<InputSelector> inputFiles) throws FileSystemException {
             for (InputSelector inputFile : inputFiles) {
-                String[] includes = inputFile.getInputFiles().getIncludes();
+                Set<String> includes = inputFile.getInputFiles().getIncludes();
                 for (String include : includes) {
                     switch(inputFile.getMode()){
                         case TransferFromInputSpace:
@@ -143,7 +144,7 @@ public class TestTaskLauncherFactory extends ProActiveForkedTaskLauncherFactory 
         @Override
         public void copyScratchDataToOutput(List<OutputSelector> outputFiles) throws FileSystemException {
             for (OutputSelector outputFile : outputFiles) {
-                String[] includes = outputFile.getOutputFiles().getIncludes();
+                Set<String> includes = outputFile.getOutputFiles().getIncludes();
                 for (String include : includes) {
                     switch (outputFile.getMode()) {
                         case TransferToUserSpace:

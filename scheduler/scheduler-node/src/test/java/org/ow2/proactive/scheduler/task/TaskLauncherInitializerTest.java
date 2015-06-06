@@ -2,13 +2,20 @@ package org.ow2.proactive.scheduler.task;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.ow2.proactive.scheduler.common.task.dataspaces.*;
+import org.objectweb.proactive.extensions.dataspaces.vfs.selector.FileSelector;
+import org.ow2.proactive.scheduler.common.task.dataspaces.InputAccessMode;
+import org.ow2.proactive.scheduler.common.task.dataspaces.InputSelector;
+import org.ow2.proactive.scheduler.common.task.dataspaces.OutputAccessMode;
+import org.ow2.proactive.scheduler.common.task.dataspaces.OutputSelector;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
-import static org.junit.Assert.assertArrayEquals;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static org.junit.Assert.assertEquals;
 
 public class TaskLauncherInitializerTest {
 
@@ -28,8 +35,8 @@ public class TaskLauncherInitializerTest {
                 Collections.<String, Serializable>singletonMap("TEST", "folder"));
 
         InputSelector selector = filteredInputFiles.get(0);
-        assertArrayEquals(new String[]{"folder/a", "b"}, selector.getInputFiles().getIncludes());
-        assertArrayEquals(new String[]{"folder/excluded"}, selector.getInputFiles().getExcludes());
+        assertEquals(new HashSet<>(asList("folder/a", "b")), selector.getInputFiles().getIncludes());
+        assertEquals(new HashSet<>(singletonList("folder/excluded")), selector.getInputFiles().getExcludes());
     }
 
     @Test
@@ -41,8 +48,8 @@ public class TaskLauncherInitializerTest {
                 Collections.<String, Serializable>singletonMap("TEST", "folder"));
 
         OutputSelector selector = filteredOutputFiles.get(0);
-        assertArrayEquals(new String[]{"folder/a", "b"}, selector.getOutputFiles().getIncludes());
-        assertArrayEquals(new String[]{"folder/excluded"}, selector.getOutputFiles().getExcludes());
+        assertEquals(new HashSet<>(asList("folder/a", "b")), selector.getOutputFiles().getIncludes());
+        assertEquals(new HashSet<>(singletonList("folder/excluded")), selector.getOutputFiles().getExcludes());
     }
 
     @Test
@@ -53,7 +60,7 @@ public class TaskLauncherInitializerTest {
                 Collections.<String, Serializable>emptyMap());
 
         OutputSelector selector = filteredOutputFiles.get(0);
-        assertArrayEquals(new String[]{"$TEST/a", "b"}, selector.getOutputFiles().getIncludes());
+        assertEquals(new HashSet<>(asList("$TEST/a", "b")), selector.getOutputFiles().getIncludes());
     }
 
     @Test
@@ -64,7 +71,7 @@ public class TaskLauncherInitializerTest {
                 Collections.<String, Serializable>emptyMap());
 
         InputSelector selector = filteredInputFiles.get(0);
-        assertArrayEquals(new String[]{"$TEST/a", "b"}, selector.getInputFiles().getIncludes());
+        assertEquals(new HashSet<>(asList("$TEST/a", "b")), selector.getInputFiles().getIncludes());
     }
 
     @Test
@@ -74,7 +81,7 @@ public class TaskLauncherInitializerTest {
         List<InputSelector> filteredInputFiles = initializer.getFilteredInputFiles(null);
 
         InputSelector selector = filteredInputFiles.get(0);
-        assertArrayEquals(new String[]{"$TEST/a", "b"}, selector.getInputFiles().getIncludes());
+        assertEquals(new HashSet<>(asList("$TEST/a", "b")), selector.getInputFiles().getIncludes());
     }
 
     @Test
@@ -84,16 +91,16 @@ public class TaskLauncherInitializerTest {
         List<OutputSelector> filteredOutputFiles = initializer.getFilteredOutputFiles(null);
 
         OutputSelector selector = filteredOutputFiles.get(0);
-        assertArrayEquals(new String[]{"$TEST/a", "b"}, selector.getOutputFiles().getIncludes());
+        assertEquals(new HashSet<>(asList("$TEST/a", "b")), selector.getOutputFiles().getIncludes());
     }
 
     private List<InputSelector> inputSelectors(String... selectors) {
-        return Collections.singletonList(new InputSelector(new FileSelector(selectors),
+        return singletonList(new InputSelector(new FileSelector(selectors),
                 InputAccessMode.TransferFromUserSpace));
     }
 
     private List<OutputSelector> outputSelectors(String... selectors) {
-        return Collections.singletonList(new OutputSelector(new FileSelector(selectors),
+        return singletonList(new OutputSelector(new FileSelector(selectors),
                 OutputAccessMode.TransferToUserSpace));
     }
 }
