@@ -34,8 +34,18 @@
  */
 package org.ow2.proactive.scheduler.task;
 
-import com.google.common.base.Strings;
-import org.apache.commons.io.FileUtils;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PrintStream;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import org.objectweb.proactive.extensions.processbuilder.OSProcessBuilder;
 import org.objectweb.proactive.extensions.processbuilder.exception.NotImplementedException;
 import org.ow2.proactive.resourcemanager.utils.OneJar;
@@ -48,11 +58,8 @@ import org.ow2.proactive.scheduler.task.utils.ProcessStreamsReader;
 import org.ow2.proactive.scheduler.task.utils.TaskProcessTreeKiller;
 import org.ow2.proactive.scripting.ScriptHandler;
 import org.ow2.proactive.scripting.ScriptLoader;
-
-import java.io.*;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import com.google.common.base.Strings;
+import org.apache.commons.io.FileUtils;
 
 
 public class ForkerTaskExecutor implements TaskExecutor {
@@ -148,7 +155,7 @@ public class ForkerTaskExecutor implements TaskExecutor {
         if (context.getExecutableContainer() instanceof ForkedScriptExecutableContainer) {
             ForkedScriptExecutableContainer forkedExecutable = (ForkedScriptExecutableContainer) context.getExecutableContainer();
 
-            ForkEnvironment forkEnvironment = forkedExecutable.getForkEnvironment();
+            ForkEnvironment forkEnvironment = context.getInitializer().getForkEnvironment();
 
             if (forkEnvironment.getEnvScript() != null) {
 

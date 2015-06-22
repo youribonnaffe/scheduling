@@ -1024,6 +1024,7 @@ public abstract class InternalTask extends TaskState {
         tli.setNamingService(job.getJobDataSpaceApplication().getNamingServiceStub());
         tli.setIterationIndex(getIterationIndex());
         tli.setReplicationIndex(getReplicationIndex());
+        tli.setForkEnvironment(getForkEnvironment());
         if (isWallTimeSet()) {
             tli.setWalltime(wallTime);
         }

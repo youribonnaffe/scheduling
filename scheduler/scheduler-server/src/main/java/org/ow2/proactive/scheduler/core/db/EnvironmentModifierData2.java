@@ -6,6 +6,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -13,8 +14,8 @@ import org.ow2.proactive.scheduler.common.task.PropertyModifier;
 
 
 @Entity
-@Table(name = "ENVIRONMENT_MODIFIER_DATA")
-public class EnvironmentModifierData {
+@Table(name = "ENVIRONMENT_MODIFIER_DATA2")
+public class EnvironmentModifierData2 {
 
     private long id;
 
@@ -26,10 +27,10 @@ public class EnvironmentModifierData {
 
     private char appendChar;
 
-    private ScriptTaskData taskData;
+    private TaskData taskData;
 
-    static EnvironmentModifierData create(PropertyModifier propertyModifier, ScriptTaskData taskData) {
-        EnvironmentModifierData data = new EnvironmentModifierData();
+    static EnvironmentModifierData2 create(PropertyModifier propertyModifier, TaskData taskData) {
+        EnvironmentModifierData2 data = new EnvironmentModifierData2();
         data.setName(propertyModifier.getName());
         data.setValue(propertyModifier.getValue());
         data.setAppend(propertyModifier.isAppend());
@@ -50,12 +51,13 @@ public class EnvironmentModifierData {
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TASK_DATA_ID")
-    public ScriptTaskData getTaskData() {
+    @JoinColumns(value = { @JoinColumn(name = "JOB_ID", referencedColumnName = "TASK_ID_JOB"),
+      @JoinColumn(name = "TASK_ID", referencedColumnName = "TASK_ID_TASK") })
+    public TaskData getTaskData() {
         return taskData;
     }
 
-    public void setTaskData(ScriptTaskData taskData) {
+    public void setTaskData(TaskData taskData) {
         this.taskData = taskData;
     }
 

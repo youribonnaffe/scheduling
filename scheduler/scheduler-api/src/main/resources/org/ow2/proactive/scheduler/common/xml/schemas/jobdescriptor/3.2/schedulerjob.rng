@@ -242,6 +242,9 @@
         <ref name="selection"/>
       </optional>
       <optional>
+        <ref name="forkEnvironment"/>
+      </optional>
+      <optional>
         <ref name="pre"/>
       </optional>
       <ref name="executable"/>

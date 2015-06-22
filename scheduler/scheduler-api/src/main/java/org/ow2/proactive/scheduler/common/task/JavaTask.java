@@ -72,7 +72,7 @@ public class JavaTask extends Task {
     public static final String ARGS_FIELD_NAME = "serializedArguments";
 
     /** Environment of a new dedicated JVM */
-    private ForkEnvironment forkEnvironment = null;
+    private ForkEnvironment forkEnvironment = null; // TODO remove
 
     /**
      * Empty constructor.
